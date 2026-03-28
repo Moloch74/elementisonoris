@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin, Clock, Phone } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
 import logoMain from "@/assets/logo-white.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
@@ -9,6 +9,8 @@ import dancefloor from "@/assets/dancefloor.jpg";
 import djVinyl from "@/assets/dj-vinyl.jpg";
 import murales from "@/assets/murales.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
+import streetwearDisplay from "@/assets/streetwear-display.jpg";
+import communityStore from "@/assets/community-store.jpg";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
 import SocialLinks from "@/components/SocialLinks";
