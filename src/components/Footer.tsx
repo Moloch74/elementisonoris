@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logoSticker from "@/assets/logo-sticker.png";
+import logoWhiteNew from "@/assets/logo-white-new.png";
 
 const Footer = () => {
   return (
@@ -7,7 +7,7 @@ const Footer = () => {
       <div className="container mx-auto px-4 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
-            <img src={logoSticker} alt="Elementi Sonori" className="w-20 h-20 invert mb-4" />
+            <img src={logoWhiteNew} alt="Elementi Sonori" className="w-48 mb-4" />
             <p className="text-muted-foreground text-xs tracking-wider leading-relaxed">
               UNDERGROUND VINYL & STREETWEAR
               <br />
