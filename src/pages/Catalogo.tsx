@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight, Disc3, Search, ExternalLink } from "lucide-react";
+import { ArrowUpRight, Disc3, Search, ExternalLink, Store } from "lucide-react";
 import djVinyl from "@/assets/dj-vinyl.jpg";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
