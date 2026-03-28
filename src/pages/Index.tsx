@@ -38,7 +38,7 @@ const Index = () => {
             <img
               src={logoMain}
               alt="Elementi Sonori"
-              className="w-full h-auto object-contain invert drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
+              className="w-full h-auto object-contain drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
             />
           </motion.div>
           <motion.p
