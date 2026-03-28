@@ -266,6 +266,140 @@ const Index = () => {
         </div>
         <FloatingSticker className="absolute bottom-10 right-10 hidden xl:block" size={100} spin />
       </section>
+
+      {/* Streetwear */}
+      <section className="py-24 border-t border-border relative">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">[ABBIGLIAMENTO]</p>
+              <h2 className="font-display text-5xl md:text-7xl font-bold mb-2">STREET</h2>
+              <h2 className="font-display text-5xl md:text-7xl font-bold text-neon mb-8">WEAR</h2>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-mono">
+                Non solo vinili. Elementi Sonori è anche streetwear underground: felpe, t-shirt e accessori per chi vive la cultura rave come stile di vita.
+              </p>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-8 font-mono">
+                Ogni capo è selezionato o prodotto in edizione limitata, ispirato alla scena techno, acid e jungle. Indossa il suono.
+              </p>
+              <div className="grid grid-cols-3 gap-6 mb-8">
+                <div>
+                  <span className="font-display text-2xl font-bold">HOODIE</span>
+                  <p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">OVERSIZE</p>
+                </div>
+                <div>
+                  <span className="font-display text-2xl font-bold">TEE</span>
+                  <p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">GRAPHIC</p>
+                </div>
+                <div>
+                  <span className="font-display text-2xl font-bold">ACC</span>
+                  <p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">ACCESSORI</p>
+                </div>
+              </div>
+              <Link to="/contatti" className="inline-flex items-center gap-2 text-primary text-xs tracking-[0.2em] font-mono hover:gap-4 transition-all">
+                SCOPRI LA COLLEZIONE <ArrowRight size={14} />
+              </Link>
+            </motion.div>
+
+            <motion.div className="relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <img src={streetwearDisplay} alt="Streetwear" className="w-full aspect-[4/3] object-cover" loading="lazy" width={1280} height={960} />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Community */}
+      <section className="py-24 border-t border-border relative noise-overlay">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-5xl md:text-7xl font-bold">
+              LA <span className="text-neon">COMMUNITY</span>
+            </h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] mt-4 font-mono">
+              COSA DICE CHI CI CONOSCE
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border mb-16">
+            {[
+              { quote: "Il miglior negozio di vinili del Sud Italia. Punto.", author: "Marco D.", role: "DJ / Producer" },
+              { quote: "Ogni volta che entro esco con almeno 5 dischi. La selezione è pazzesca.", author: "Giulia R.", role: "Collezionista" },
+              { quote: "Non è un negozio, è un tempio. Atmosfera unica, gente vera.", author: "Luca P.", role: "Organizzatore eventi" },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                className="bg-background p-8"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.6, delay: i * 0.15 } } }}
+              >
+                <p className="text-foreground text-sm font-mono leading-relaxed mb-6">"{t.quote}"</p>
+                <p className="font-display text-sm font-bold">{t.author}</p>
+                <p className="text-primary text-[10px] tracking-[0.2em] font-mono">{t.role}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <img src={communityStore} alt="Community" className="w-full aspect-[21/9] object-cover" loading="lazy" width={1280} height={960} />
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Dove Siamo */}
+      <section className="py-24 border-t border-border">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <h2 className="font-display text-5xl md:text-7xl font-bold mb-2">DOVE</h2>
+              <h2 className="font-display text-5xl md:text-7xl font-bold text-neon mb-8">SIAMO</h2>
+
+              <div className="space-y-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <MapPin size={18} className="text-primary shrink-0 mt-1" />
+                  <div>
+                    <p className="text-foreground text-sm font-mono">Via Alfonso Sozy Carafa, 31B</p>
+                    <p className="text-foreground text-sm font-mono">73100 Lecce (LE), Italia</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <Clock size={18} className="text-primary shrink-0 mt-1" />
+                  <div>
+                    <p className="text-foreground text-sm font-mono">Lun: 17:00 – 21:30</p>
+                    <p className="text-foreground text-sm font-mono">Mar – Sab: 11:00 – 13:30 / 17:00 – 21:30</p>
+                    <p className="text-muted-foreground text-sm font-mono">Dom: Chiuso</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4">
+                  <Phone size={18} className="text-primary shrink-0 mt-1" />
+                  <a href="tel:+393714999328" className="text-foreground text-sm font-mono hover:text-primary transition-colors">
+                    +39 371 499 9328
+                  </a>
+                </div>
+              </div>
+
+              <Link to="/contatti" className="inline-flex items-center gap-2 text-primary text-xs tracking-[0.2em] font-mono hover:gap-4 transition-all">
+                CONTATTACI <ArrowRight size={14} />
+              </Link>
+            </motion.div>
+
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <div className="relative w-full aspect-square bg-secondary overflow-hidden">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3044.5!2d18.1714!3d40.3515!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDIxJzA1LjQiTiAxOMKwMTAnMTcuMCJF!5e0!3m2!1sit!2sit!4v1"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, filter: "invert(0.9) hue-rotate(180deg) saturate(0.3)" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Elementi Sonori - Mappa"
+                />
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
