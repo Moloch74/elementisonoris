@@ -25,6 +25,7 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <StreetAnimations />
+        <VinylCursor />
         <Navbar />
         <main>
           <Routes>
