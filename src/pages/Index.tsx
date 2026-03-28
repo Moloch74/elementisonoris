@@ -28,9 +28,9 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
         </div>
 
-        <div className="relative z-10 text-center px-4">
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 w-full">
           <motion.div
-            className="inline-block mb-8 w-[72vw] max-w-[760px] min-w-[280px]"
+            className="w-[60vw] max-w-[600px] min-w-[240px] mb-8 mx-auto"
             initial={{ opacity: 0, scale: 0.92, y: 18 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
@@ -38,7 +38,7 @@ const Index = () => {
             <img
               src={logoMain}
               alt="Elementi Sonori"
-              className="w-full object-contain invert drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
+              className="w-full h-auto object-contain invert drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
             />
           </motion.div>
           <motion.p
