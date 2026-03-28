@@ -24,7 +24,7 @@ const ContactForm = () => {
       `Nome: ${form.name}\nEmail: ${form.email}\n\nMessaggio:\n${form.message}`
     );
     window.open(
-      `mailto:elementisonori@gmail.com?subject=${subject}&body=${body}`,
+      `mailto:elementisonori23@gmail.com?subject=${subject}&body=${body}`,
       "_blank"
     );
 
