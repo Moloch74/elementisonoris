@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import StreetAnimations from "@/components/StreetAnimations";
+import VinylCursor from "@/components/VinylCursor";
 import Index from "./pages/Index.tsx";
 import ChiSiamo from "./pages/ChiSiamo.tsx";
 import Catalogo from "./pages/Catalogo.tsx";
@@ -24,6 +25,7 @@ const App = () => (
       <BrowserRouter>
         <ScrollToTop />
         <StreetAnimations />
+        <VinylCursor />
         <Navbar />
         <main>
           <Routes>
