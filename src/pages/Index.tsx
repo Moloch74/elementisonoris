@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Clock, Phone } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
-import logoMain from "@/assets/logo-white.png";
+import logoMain from "@/assets/logo-white-new.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
@@ -32,7 +32,7 @@ const Index = () => {
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 w-full">
           <motion.div
-            className="w-[60vw] max-w-[600px] min-w-[240px] mb-8 mx-auto"
+            className="w-[75vw] max-w-[800px] min-w-[280px] mb-8 mx-auto"
             initial={{ opacity: 0, scale: 0.92, y: 18 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}

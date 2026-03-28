@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import logoWhite from "@/assets/logo-white.png";
+import logoWhite from "@/assets/logo-white-new.png";
 
 const navItems = [
   { label: "CHI SIAMO", path: "/chi-siamo" },
@@ -22,7 +22,7 @@ const Navbar = () => {
           <img
             src={logoWhite}
             alt="Elementi Sonori"
-            className="h-8"
+            className="h-12"
           />
         </Link>
 
