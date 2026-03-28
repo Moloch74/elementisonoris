@@ -29,14 +29,18 @@ const Index = () => {
         </div>
 
         <div className="relative z-10 text-center px-4">
-          <motion.img
-            src={logoMain}
-            alt="Elementi Sonori"
-            className="mx-auto h-48 md:h-72 lg:h-96 invert mb-6 drop-shadow-[0_0_30px_hsl(120_100%_40%/0.3)]"
+          <motion.div
+            className="inline-block bg-black px-8 py-10 md:px-14 md:py-14 mb-8"
             initial={{ opacity: 0, scale: 0.6, rotate: -5 }}
             animate={{ opacity: 1, scale: 1, rotate: 0 }}
             transition={{ duration: 1, ease: "easeOut" }}
-          />
+          >
+            <img
+              src={logoMain}
+              alt="Elementi Sonori"
+              className="h-36 md:h-56 lg:h-72 invert drop-shadow-[0_0_30px_hsl(120_100%_40%/0.3)]"
+            />
+          </motion.div>
           <motion.p
             className="text-xs md:text-sm tracking-[0.4em] text-primary font-mono mb-8"
             initial={{ opacity: 0 }}
