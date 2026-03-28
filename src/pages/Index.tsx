@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
-import logoMain from "@/assets/logo-hero-reference.png";
+import logoMain from "@/assets/logo-white.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
@@ -38,7 +38,7 @@ const Index = () => {
             <img
               src={logoMain}
               alt="Elementi Sonori"
-              className="w-full h-auto object-contain invert drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
+              className="w-full h-auto object-contain drop-shadow-[0_0_30px_hsl(120_100%_40%/0.22)]"
             />
           </motion.div>
           <motion.p
