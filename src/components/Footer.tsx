@@ -28,9 +28,10 @@ const Footer = () => {
           <div>
             <h4 className="text-primary text-xs tracking-[0.2em] mb-4 font-mono">SOCIAL</h4>
             <div className="flex flex-col gap-2">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">INSTAGRAM</a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">FACEBOOK</a>
-              <a href="https://www.discogs.com/it/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">DISCOGS</a>
+              <a href="https://www.instagram.com/elementi_sonori/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">INSTAGRAM</a>
+              <a href="https://www.facebook.com/elementisonori" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">FACEBOOK</a>
+              <a href="https://www.discogs.com/seller/Elementi_Sonori/profile" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">DISCOGS</a>
+              <a href="https://wa.me/393714999328" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">WHATSAPP</a>
             </div>
           </div>
         </div>

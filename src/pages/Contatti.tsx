@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { MapPin, Clock, Phone } from "lucide-react";
 import logoSticker from "@/assets/logo-sticker.png";
 import FloatingSticker from "@/components/FloatingSticker";
+import SocialLinks from "@/components/SocialLinks";
+import ContactForm from "@/components/ContactForm";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -27,7 +29,7 @@ const Contatti = () => {
       </section>
 
       {/* Content */}
-      <section className="pb-24">
+      <section className="pb-16">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Info */}
@@ -58,10 +60,8 @@ const Contatti = () => {
                 </a>
               </div>
 
-              <div className="flex gap-6 mt-8">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-[0.15em] font-mono hover:text-foreground transition-colors">INSTAGRAM</a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-[0.15em] font-mono hover:text-foreground transition-colors">FACEBOOK</a>
-                <a href="https://www.discogs.com/it/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-[0.15em] font-mono hover:text-foreground transition-colors">DISCOGS</a>
+              <div className="mt-8">
+                <SocialLinks />
               </div>
             </motion.div>
 
@@ -89,6 +89,13 @@ const Contatti = () => {
               </div>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Contact Form */}
+      <section className="py-16 border-t border-border">
+        <div className="container mx-auto px-4 md:px-8 max-w-xl">
+          <ContactForm />
         </div>
       </section>
 
