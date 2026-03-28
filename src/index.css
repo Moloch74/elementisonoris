@@ -70,7 +70,11 @@
   }
 
   a, button, [role="button"], input[type="submit"] {
-    cursor: url('/vinyl-cursor-32.png') 16 16, pointer;
+    cursor: url('/vinyl-cursor-glow-32.png') 16 16, pointer;
+  }
+
+  *:hover {
+    cursor: url('/vinyl-cursor-glow-32.png') 16 16, auto;
   }
 
   /* Prevent double-tap zoom */
