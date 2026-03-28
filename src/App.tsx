@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
+import StreetAnimations from "@/components/StreetAnimations";
 import Index from "./pages/Index.tsx";
 import ChiSiamo from "./pages/ChiSiamo.tsx";
 import Catalogo from "./pages/Catalogo.tsx";
@@ -22,6 +23,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <StreetAnimations />
         <Navbar />
         <main>
           <Routes>

@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
-import logoText from "@/assets/logo-text.png";
+import logoMain from "@/assets/logo-main.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
@@ -11,6 +11,7 @@ import murales from "@/assets/murales.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
+import SocialLinks from "@/components/SocialLinks";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -26,21 +27,21 @@ const Index = () => {
           <img src={heroImg} alt="Rave" className="w-full h-full object-cover opacity-40" width={1920} height={1080} />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
         </div>
-        
+
         <div className="relative z-10 text-center px-4">
           <motion.img
-            src={logoText}
+            src={logoMain}
             alt="Elementi Sonori"
-            className="mx-auto h-24 md:h-40 invert mb-6"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
+            className="mx-auto h-48 md:h-72 lg:h-96 invert mb-6 drop-shadow-[0_0_30px_hsl(120_100%_40%/0.3)]"
+            initial={{ opacity: 0, scale: 0.6, rotate: -5 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1, ease: "easeOut" }}
           />
           <motion.p
             className="text-xs md:text-sm tracking-[0.4em] text-primary font-mono mb-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
           >
             UNDERGROUND VINYL & STREETWEAR — LECCE
           </motion.p>
@@ -48,7 +49,7 @@ const Index = () => {
             className="flex flex-col sm:flex-row gap-4 justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
           >
             <Link
               to="/catalogo"
@@ -70,6 +71,21 @@ const Index = () => {
 
       {/* Marquee */}
       <MarqueeStrip />
+
+      {/* Social Links Strip */}
+      <section className="py-12 border-b border-border">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.p
+            className="text-center text-muted-foreground text-xs tracking-[0.3em] font-mono mb-6"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+          >
+            SEGUICI NELLA SCENA
+          </motion.p>
+          <SocialLinks />
+        </div>
+      </section>
 
       {/* Chi Siamo Preview */}
       <section className="py-24 relative">
@@ -97,7 +113,7 @@ const Index = () => {
               <h2 className="font-display text-5xl md:text-6xl font-bold mb-2">IL SUONO</h2>
               <h2 className="font-display text-5xl md:text-6xl font-bold text-neon mb-8">UNDERGROUND</h2>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-mono">
-                Elementi Sonori nasce a Lecce, in Via Sozy Carafa 31B, come punto di riferimento per chi vive la musica come cultura, non come sottofondo. Un negozio di vinili e streetwear underground che è anche rifugio, archivio e punto di incontro per la scena del Salento.
+                Elementi Sonori nasce a Lecce, in Via Sozy Carafa 31B, come punto di riferimento per chi vive la musica come cultura, non come sottofondo.
               </p>
               <p className="text-muted-foreground text-sm leading-relaxed mb-8 font-mono">
                 Dalla techno più oscura all'house più groovy, dall'acid al jungle, selezioniamo solo vinili che raccontano una storia.
@@ -125,7 +141,7 @@ const Index = () => {
         <FloatingSticker className="absolute top-10 left-5 hidden xl:block" size={80} />
       </section>
 
-      {/* Gallery Grid - Dal Dancefloor */}
+      {/* Gallery Grid */}
       <section className="py-24 relative">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
@@ -175,7 +191,7 @@ const Index = () => {
             ].map((genre, i) => (
               <motion.a
                 key={genre.num}
-                href="https://www.discogs.com/it/"
+                href="https://www.discogs.com/seller/Elementi_Sonori/profile"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-background p-8 group hover:bg-secondary transition-colors duration-300"

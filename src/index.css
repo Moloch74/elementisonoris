@@ -53,6 +53,7 @@
 @layer base {
   * {
     @apply border-border;
+    cursor: url('/vinyl-cursor-32.png') 16 16, auto;
   }
 
   html {
@@ -66,6 +67,10 @@
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+  }
+
+  a, button, [role="button"], input[type="submit"] {
+    cursor: url('/vinyl-cursor-32.png') 16 16, pointer;
   }
 
   /* Prevent double-tap zoom */
