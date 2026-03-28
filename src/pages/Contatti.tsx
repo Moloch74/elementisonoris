@@ -85,6 +85,9 @@ const Contatti = () => {
                 <a href="tel:+393714999328" className="text-foreground text-sm font-mono hover:text-primary transition-colors block">
                   +39 371 499 9328
                 </a>
+                <a href="mailto:elementisonori23@gmail.com" className="text-foreground text-sm font-mono hover:text-primary transition-colors block mt-1">
+                  elementisonori23@gmail.com
+                </a>
               </div>
 
               <div className="mt-8 pt-8 border-t border-border">
@@ -124,7 +127,7 @@ const Contatti = () => {
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8 max-w-xl">
           <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-4xl md:text-5xl font-bold mb-2">SCRIVICI</h2>
+            <a href="mailto:elementisonori23@gmail.com" className="font-display text-4xl md:text-5xl font-bold mb-2 block hover:text-primary transition-colors">SCRIVICI</a>
             <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">VIA EMAIL O WHATSAPP</p>
           </motion.div>
           <ContactForm />
