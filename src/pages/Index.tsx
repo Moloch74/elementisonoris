@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
-import logoMain from "@/assets/logo-hero-reference.png";
+import logoMain from "@/assets/logo-white.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
