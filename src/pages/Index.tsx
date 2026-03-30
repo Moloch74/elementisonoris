@@ -27,8 +27,8 @@ const Index = () => {
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={undergroundShop} alt="Underground Records Shop" className="w-full h-full object-cover opacity-40" width={1920} height={1080} />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
+          <img src={undergroundShop} alt="Underground Records Shop" className="w-full h-full object-cover opacity-60" width={1920} height={1080} />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
         </div>
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 w-full">
