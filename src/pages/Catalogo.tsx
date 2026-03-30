@@ -12,13 +12,18 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
+const genres = [
+  { num: "01", name: "ELECTRONIC", desc: "Il cuore del catalogo: techno, acid, freetekno e tutte le sfumature della musica elettronica", count: "437 dischi", link: `${DISCOGS_BASE}?genre=Electronic` },
+  { num: "02", name: "FUNK / SOUL", desc: "Groove e radici black music nella collezione", count: "1 disco", link: `${DISCOGS_BASE}?genre=Funk+%2F+Soul` },
+  { num: "03", name: "HIP HOP", desc: "Beats e campionamenti dalla cultura hip hop", count: "1 disco", link: `${DISCOGS_BASE}?genre=Hip+Hop` },
+];
+
 const styles = [
-  { num: "01", name: "FREETEKNO", desc: "Suoni liberi dalla scena free party", count: "285 dischi", link: `${DISCOGS_BASE}?style=Freetekno` },
-  { num: "02", name: "TECHNO", desc: "Pura potenza dal dancefloor", count: "156 dischi", link: `${DISCOGS_BASE}?style=Techno` },
-  { num: "03", name: "ACID", desc: "Il suono della 303", count: "146 dischi", link: `${DISCOGS_BASE}?style=Acid` },
-  { num: "04", name: "HARDCORE", desc: "Velocità e intensità senza limiti", count: "100 dischi", link: `${DISCOGS_BASE}?style=Hardcore` },
-  { num: "05", name: "TRIBAL", desc: "Ritmi tribali e percussioni ipnotiche", count: "98 dischi", link: `${DISCOGS_BASE}?style=Tribal` },
-  { num: "06", name: "ELECTRONIC", desc: "Tutto il mondo della musica elettronica", count: "437 dischi", link: `${DISCOGS_BASE}?genre=Electronic` },
+  { num: "01", name: "FREETEKNO", desc: "Suoni liberi dalla scena free party e teknivals — il genere più rappresentato nel catalogo", count: "285 dischi", link: `${DISCOGS_BASE}?style=Freetekno` },
+  { num: "02", name: "TECHNO", desc: "Dalla Detroit originale al suono europeo, pura potenza dal dancefloor", count: "156 dischi", link: `${DISCOGS_BASE}?style=Techno` },
+  { num: "03", name: "ACID", desc: "Il suono inconfondibile della Roland TB-303 e le sue evoluzioni", count: "146 dischi", link: `${DISCOGS_BASE}?style=Acid` },
+  { num: "04", name: "HARDCORE", desc: "Velocità e intensità senza limiti — gabber, industrial e oltre", count: "100 dischi", link: `${DISCOGS_BASE}?style=Hardcore` },
+  { num: "05", name: "TRIBAL", desc: "Ritmi tribali, percussioni ipnotiche e groove primitivo", count: "98 dischi", link: `${DISCOGS_BASE}?style=Tribal` },
 ];
 
 const priceRanges = [
@@ -54,8 +59,8 @@ const Catalogo = () => {
         </div>
         <div className="container mx-auto px-4 md:px-8 relative z-10 text-center">
           <motion.p className="text-primary text-xs tracking-[0.4em] font-mono mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            [437+ VINILI IN VENDITA SU DISCOGS]
-          </motion.p>
+            [437+ VINILI IN VENDITA SU DISCOGS — 5 STILI · 3 GENERI]
+58:           </motion.p>
           <motion.h1 className="font-display text-6xl md:text-8xl font-bold" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             CATALOGO
           </motion.h1>
@@ -67,6 +72,43 @@ const Catalogo = () => {
       </section>
 
       <MarqueeStrip />
+
+      {/* Genres Section */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">GENERI</h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">CATEGORIE PRINCIPALI SU DISCOGS</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+            {genres.map((genre, i) => (
+              <motion.a
+                key={genre.num}
+                href={genre.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-background p-8 group hover:bg-secondary transition-colors duration-300"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.05 } } }}
+              >
+                <div className="flex justify-end mb-4">
+                  <span className="text-muted-foreground text-[10px] tracking-wider font-mono">[{genre.num}]</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                  {genre.name}
+                </h3>
+                <p className="text-muted-foreground text-xs font-mono mb-4">{genre.desc}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-primary text-xs font-mono">{genre.count}</span>
+                  <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-all" />
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Styles Grid */}
       <section className="py-24">
