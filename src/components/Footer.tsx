@@ -30,7 +30,7 @@ const Footer = () => {
             <div className="flex flex-col gap-2">
               <a href="https://www.instagram.com/elementi_sonori/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">INSTAGRAM</a>
               <a href="https://www.facebook.com/elementisonori" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">FACEBOOK</a>
-              <a href="https://www.discogs.com/seller/Elementi_Sonori/profile" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">DISCOGS</a>
+              <a href="https://www.discogs.com/seller/Elementisonori_Shop/profile" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">DISCOGS</a>
               <a href="https://wa.me/393714999328" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs tracking-wider hover:text-primary transition-colors">WHATSAPP</a>
             </div>
           </div>

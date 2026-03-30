@@ -66,7 +66,7 @@ const VinylCursor = () => {
         <div
           className="absolute inset-[-6px] rounded-full"
           style={{
-            background: "radial-gradient(circle, hsl(120 100% 40% / 0.4) 0%, transparent 70%)",
+            background: "radial-gradient(circle, hsl(0 0% 100% / 0.3) 0%, transparent 70%)",
             filter: "blur(4px)",
           }}
         />
