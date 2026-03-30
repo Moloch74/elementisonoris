@@ -59,8 +59,8 @@ const Catalogo = () => {
         </div>
         <div className="container mx-auto px-4 md:px-8 relative z-10 text-center">
           <motion.p className="text-primary text-xs tracking-[0.4em] font-mono mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            [437+ VINILI IN VENDITA SU DISCOGS]
-          </motion.p>
+            [437+ VINILI IN VENDITA SU DISCOGS — 5 STILI · 3 GENERI]
+58:           </motion.p>
           <motion.h1 className="font-display text-6xl md:text-8xl font-bold" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             CATALOGO
           </motion.h1>
