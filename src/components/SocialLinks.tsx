@@ -15,7 +15,7 @@ const socials = [
   {
     label: "DISCOGS",
     icon: Disc3,
-    href: "https://www.discogs.com/seller/Elementi_Sonori/profile",
+    href: "https://www.discogs.com/seller/Elementisonori_Shop/profile",
   },
   {
     label: "WHATSAPP",

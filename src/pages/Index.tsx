@@ -197,7 +197,7 @@ const Index = () => {
             ].map((genre, i) => (
               <motion.a
                 key={genre.num}
-                href="https://www.discogs.com/seller/Elementi_Sonori/profile"
+                href="https://www.discogs.com/seller/Elementisonori_Shop/profile"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-background p-8 group hover:bg-secondary transition-colors duration-300"
