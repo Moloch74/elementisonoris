@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Clock, Phone } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
+import undergroundShop from "@/assets/underground-shop.jpg";
 import logoMain from "@/assets/logo-white-new.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
