@@ -12,13 +12,18 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
+const genres = [
+  { num: "01", name: "ELECTRONIC", desc: "Il cuore del catalogo: techno, acid, freetekno e tutte le sfumature della musica elettronica", count: "437 dischi", link: `${DISCOGS_BASE}?genre=Electronic` },
+  { num: "02", name: "FUNK / SOUL", desc: "Groove e radici black music nella collezione", count: "1 disco", link: `${DISCOGS_BASE}?genre=Funk+%2F+Soul` },
+  { num: "03", name: "HIP HOP", desc: "Beats e campionamenti dalla cultura hip hop", count: "1 disco", link: `${DISCOGS_BASE}?genre=Hip+Hop` },
+];
+
 const styles = [
-  { num: "01", name: "FREETEKNO", desc: "Suoni liberi dalla scena free party", count: "285 dischi", link: `${DISCOGS_BASE}?style=Freetekno` },
-  { num: "02", name: "TECHNO", desc: "Pura potenza dal dancefloor", count: "156 dischi", link: `${DISCOGS_BASE}?style=Techno` },
-  { num: "03", name: "ACID", desc: "Il suono della 303", count: "146 dischi", link: `${DISCOGS_BASE}?style=Acid` },
-  { num: "04", name: "HARDCORE", desc: "Velocità e intensità senza limiti", count: "100 dischi", link: `${DISCOGS_BASE}?style=Hardcore` },
-  { num: "05", name: "TRIBAL", desc: "Ritmi tribali e percussioni ipnotiche", count: "98 dischi", link: `${DISCOGS_BASE}?style=Tribal` },
-  { num: "06", name: "ELECTRONIC", desc: "Tutto il mondo della musica elettronica", count: "437 dischi", link: `${DISCOGS_BASE}?genre=Electronic` },
+  { num: "01", name: "FREETEKNO", desc: "Suoni liberi dalla scena free party e teknivals — il genere più rappresentato nel catalogo", count: "285 dischi", link: `${DISCOGS_BASE}?style=Freetekno` },
+  { num: "02", name: "TECHNO", desc: "Dalla Detroit originale al suono europeo, pura potenza dal dancefloor", count: "156 dischi", link: `${DISCOGS_BASE}?style=Techno` },
+  { num: "03", name: "ACID", desc: "Il suono inconfondibile della Roland TB-303 e le sue evoluzioni", count: "146 dischi", link: `${DISCOGS_BASE}?style=Acid` },
+  { num: "04", name: "HARDCORE", desc: "Velocità e intensità senza limiti — gabber, industrial e oltre", count: "100 dischi", link: `${DISCOGS_BASE}?style=Hardcore` },
+  { num: "05", name: "TRIBAL", desc: "Ritmi tribali, percussioni ipnotiche e groove primitivo", count: "98 dischi", link: `${DISCOGS_BASE}?style=Tribal` },
 ];
 
 const priceRanges = [
