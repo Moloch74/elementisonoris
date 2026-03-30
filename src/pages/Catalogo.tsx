@@ -73,6 +73,43 @@ const Catalogo = () => {
 
       <MarqueeStrip />
 
+      {/* Genres Section */}
+      <section className="py-24">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">GENERI</h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">CATEGORIE PRINCIPALI SU DISCOGS</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+            {genres.map((genre, i) => (
+              <motion.a
+                key={genre.num}
+                href={genre.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-background p-8 group hover:bg-secondary transition-colors duration-300"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.05 } } }}
+              >
+                <div className="flex justify-end mb-4">
+                  <span className="text-muted-foreground text-[10px] tracking-wider font-mono">[{genre.num}]</span>
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                  {genre.name}
+                </h3>
+                <p className="text-muted-foreground text-xs font-mono mb-4">{genre.desc}</p>
+                <div className="flex justify-between items-center">
+                  <span className="text-primary text-xs font-mono">{genre.count}</span>
+                  <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-all" />
+                </div>
+              </motion.a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Styles Grid */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
