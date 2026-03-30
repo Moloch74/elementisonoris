@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Clock, Phone } from "lucide-react";
 import heroImg from "@/assets/hero-rave.jpg";
+import undergroundShop from "@/assets/underground-shop.jpg";
 import logoMain from "@/assets/logo-white-new.png";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import storeInterior from "@/assets/store-interior.jpg";
@@ -26,7 +27,7 @@ const Index = () => {
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
-          <img src={heroImg} alt="Rave" className="w-full h-full object-cover opacity-40" width={1920} height={1080} />
+          <img src={undergroundShop} alt="Underground Records Shop" className="w-full h-full object-cover opacity-40" width={1920} height={1080} />
           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/30 to-background" />
         </div>
 
