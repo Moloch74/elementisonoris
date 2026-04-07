@@ -63,8 +63,10 @@ type Product = {
 
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
-  const [cart, setCart] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const { addItem, itemCount } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
@@ -84,8 +86,12 @@ const Shop = () => {
       ? products
       : products.filter((p) => p.category === activeCategory);
 
-  const addToCart = (id: string) => {
-    setCart((prev) => [...prev, id]);
+  const handleAddToCart = (id: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    addItem(id);
   };
 
   const getImage = (imageUrl: string | null) => {
