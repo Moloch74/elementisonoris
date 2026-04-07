@@ -184,7 +184,7 @@ export type Database = {
     }
     Enums: {
       order_status: "pending" | "paid" | "shipped" | "delivered" | "cancelled"
-      product_category: "vinili" | "streetwear"
+      product_category: "vinili" | "streetwear" | "gadgets"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -313,7 +313,7 @@ export const Constants = {
   public: {
     Enums: {
       order_status: ["pending", "paid", "shipped", "delivered", "cancelled"],
-      product_category: ["vinili", "streetwear"],
+      product_category: ["vinili", "streetwear", "gadgets"],
     },
   },
 } as const
