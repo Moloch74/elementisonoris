@@ -5,11 +5,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { LangProvider } from "@/contexts/LangContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import StreetAnimations from "@/components/StreetAnimations";
 import VinylCursor from "@/components/VinylCursor";
+import LanguageToggle from "@/components/LanguageToggle";
 import Index from "./pages/Index.tsx";
 import ChiSiamo from "./pages/ChiSiamo.tsx";
 import Catalogo from "./pages/Catalogo.tsx";
@@ -27,27 +29,30 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <ScrollToTop />
-            <StreetAnimations />
-            <VinylCursor />
-            <Navbar />
-            <main>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/chi-siamo" element={<ChiSiamo />} />
-                <Route path="/catalogo" element={<Catalogo />} />
-                <Route path="/eventi" element={<Eventi />} />
-                <Route path="/contatti" element={<Contatti />} />
-                <Route path="/shop" element={<Shop />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </main>
-            <Footer />
-          </CartProvider>
-        </AuthProvider>
+        <LangProvider>
+          <AuthProvider>
+            <CartProvider>
+              <ScrollToTop />
+              <StreetAnimations />
+              <VinylCursor />
+              <Navbar />
+              <LanguageToggle />
+              <main>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/chi-siamo" element={<ChiSiamo />} />
+                  <Route path="/catalogo" element={<Catalogo />} />
+                  <Route path="/eventi" element={<Eventi />} />
+                  <Route path="/contatti" element={<Contatti />} />
+                  <Route path="/shop" element={<Shop />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+              <Footer />
+            </CartProvider>
+          </AuthProvider>
+        </LangProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
