@@ -20,6 +20,7 @@ import Contatti from "./pages/Contatti.tsx";
 import Shop from "./pages/Shop.tsx";
 import Auth from "./pages/Auth.tsx";
 import Admin from "./pages/Admin.tsx";
+import Carrello from "./pages/Carrello.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/admin" element={<Admin />} />
+                  <Route path="/carrello" element={<Carrello />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>

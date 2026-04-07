@@ -59,9 +59,9 @@ const Navbar = () => {
 
           <LangSwitch />
 
-          {/* Cart button - more visible */}
+          {/* Cart button */}
           <button
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate("/carrello")}
             className="relative border border-primary text-primary px-3 py-1.5 flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
           >
             <ShoppingCart className="h-4 w-4" />
@@ -108,7 +108,7 @@ const Navbar = () => {
         {/* Mobile */}
         <div className="md:hidden flex items-center gap-2">
           <button
-            onClick={() => navigate("/shop")}
+            onClick={() => navigate("/carrello")}
             className="relative border border-primary text-primary p-2 flex items-center gap-1"
           >
             <ShoppingCart className="h-4 w-4" />
