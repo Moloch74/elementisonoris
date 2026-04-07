@@ -130,9 +130,9 @@ const Shop = () => {
             className="relative border-border text-foreground hover:bg-secondary"
           >
             <ShoppingCart className="h-5 w-5" />
-            {cart.length > 0 && (
+            {itemCount > 0 && (
               <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-mono">
-                {cart.length}
+                {itemCount}
               </span>
             )}
           </Button>
@@ -215,7 +215,7 @@ const Shop = () => {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        addToCart(product.id);
+                        handleAddToCart(product.id);
                       }}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
                     >
@@ -345,7 +345,7 @@ const Shop = () => {
 
                     <Button
                       onClick={() => {
-                        addToCart(selectedProduct.id);
+                        handleAddToCart(selectedProduct.id);
                         setSelectedProduct(null);
                       }}
                       disabled={selectedProduct.stock === 0}
