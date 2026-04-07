@@ -20,6 +20,7 @@ import Eventi from "./pages/Eventi.tsx";
 import Contatti from "./pages/Contatti.tsx";
 import Shop from "./pages/Shop.tsx";
 import Auth from "./pages/Auth.tsx";
+import Admin from "./pages/Admin.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
