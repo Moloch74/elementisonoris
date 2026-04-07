@@ -20,6 +20,7 @@ const Footer = () => {
             <div className="flex flex-col gap-2">
               <Link to="/chi-siamo" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">CHI SIAMO</Link>
               <Link to="/catalogo" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">CATALOGO</Link>
+              <Link to="/shop" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">SHOP</Link>
               <Link to="/eventi" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">EVENTI</Link>
               <Link to="/contatti" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">CONTATTI</Link>
             </div>
