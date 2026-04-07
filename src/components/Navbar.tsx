@@ -7,6 +7,7 @@ import logoWhite from "@/assets/logo-white-new.png";
 const navItems = [
   { label: "CHI SIAMO", path: "/chi-siamo" },
   { label: "CATALOGO", path: "/catalogo" },
+  { label: "SHOP", path: "/shop" },
   { label: "EVENTI", path: "/eventi" },
   { label: "CONTATTI", path: "/contatti" },
 ];

@@ -13,6 +13,7 @@ import ChiSiamo from "./pages/ChiSiamo.tsx";
 import Catalogo from "./pages/Catalogo.tsx";
 import Eventi from "./pages/Eventi.tsx";
 import Contatti from "./pages/Contatti.tsx";
+import Shop from "./pages/Shop.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/catalogo" element={<Catalogo />} />
             <Route path="/eventi" element={<Eventi />} />
             <Route path="/contatti" element={<Contatti />} />
+            <Route path="/shop" element={<Shop />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
