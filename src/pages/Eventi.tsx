@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, MapPin, Calendar, Users } from "lucide-react";
+import { useLang } from "@/contexts/LangContext";
 import heroRave from "@/assets/hero-rave.jpg";
 import warehouseRave from "@/assets/warehouse-rave.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
@@ -13,14 +14,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const events = [
-  { date: "12 APR", name: "VINYL ONLY NIGHT", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: "Una serata dedicata al vinile puro. Solo giradischi, solo wax. Selezione techno, house e acid.", time: "21:00 — 02:00" },
-  { date: "26 APR", name: "ACID TEKNO SESSION", location: "Warehouse District — Lecce", tag: "RAVE", desc: "Warehouse party con i migliori selectors della scena acid tekno pugliese. Sound system da 10K watts.", time: "23:00 — 06:00" },
-  { date: "10 MAG", name: "DIGGING DAY", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: "Giornata di scavo nelle casse. Nuovi arrivi, rarità e chicche da collezionisti.", time: "11:00 — 21:00" },
-  { date: "24 MAG", name: "JUNGLE MASSIVE", location: "Ex Convento — Lecce", tag: "RAVE", desc: "Jungle, drum & bass e breakbeat in un'atmosfera unica. MC live e vinyl only set.", time: "23:00 — 05:00" },
-  { date: "7 GIU", name: "SUMMER OPENING", location: "Location TBA", tag: "OPEN AIR", desc: "L'inaugurazione dell'estate con un evento all'aperto. Dettagli in arrivo.", time: "TBA" },
-];
-
 const pastEvents = [
   { date: "15 MAR", name: "DEEP HOUSE SELECTION", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
   { date: "1 MAR", name: "TECHNO RESISTANCE", location: "Bunker — Lecce", tag: "RAVE" },
@@ -30,13 +23,23 @@ const pastEvents = [
   { date: "14 DIC", name: "ELECTRO XMAS", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
 ];
 
-const stats = [
-  { icon: Calendar, value: "50+", label: "EVENTI ALL'ANNO" },
-  { icon: Users, value: "2K+", label: "PARTECIPANTI" },
-  { icon: MapPin, value: "10+", label: "LOCATION" },
-];
-
 const Eventi = () => {
+  const { t } = useLang();
+
+  const events = [
+    { date: "12 APR", name: "VINYL ONLY NIGHT", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: t("eventi.event1.desc"), time: "21:00 — 02:00" },
+    { date: "26 APR", name: "ACID TEKNO SESSION", location: "Warehouse District — Lecce", tag: "RAVE", desc: t("eventi.event2.desc"), time: "23:00 — 06:00" },
+    { date: "10 MAG", name: "DIGGING DAY", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: t("eventi.event3.desc"), time: "11:00 — 21:00" },
+    { date: "24 MAG", name: "JUNGLE MASSIVE", location: "Ex Convento — Lecce", tag: "RAVE", desc: t("eventi.event4.desc"), time: "23:00 — 05:00" },
+    { date: "7 GIU", name: "SUMMER OPENING", location: "Location TBA", tag: "OPEN AIR", desc: t("eventi.event5.desc"), time: "TBA" },
+  ];
+
+  const stats = [
+    { icon: Calendar, value: "50+", label: t("eventi.eventiAnno") },
+    { icon: Users, value: "2K+", label: t("eventi.partecipanti") },
+    { icon: MapPin, value: "10+", label: t("eventi.location") },
+  ];
+
   return (
     <div className="pt-16 relative">
       {/* Hero */}
@@ -47,13 +50,13 @@ const Eventi = () => {
         </div>
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <motion.p className="text-primary text-xs tracking-[0.4em] font-mono mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            [PROSSIMI APPUNTAMENTI]
+            {t("eventi.prossimiAppuntamenti")}
           </motion.p>
           <motion.h1 className="font-display text-6xl md:text-8xl font-bold" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            EVENTI
+            {t("eventi.title")}
           </motion.h1>
           <motion.p className="text-muted-foreground text-sm font-mono mt-4 max-w-md" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-            Dal negozio al warehouse. In-store sessions, rave e digging days.
+            {t("eventi.subtitle")}
           </motion.p>
         </div>
         <FloatingSticker className="absolute top-10 right-20 hidden lg:block" size={100} spin />
@@ -66,14 +69,7 @@ const Eventi = () => {
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-3 gap-4">
             {stats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                className="text-center"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}
-              >
+              <motion.div key={i} className="text-center" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}>
                 <s.icon size={24} className="mx-auto mb-2 text-primary" />
                 <span className="font-display text-3xl md:text-4xl font-bold">{s.value}</span>
                 <p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">{s.label}</p>
@@ -87,26 +83,15 @@ const Eventi = () => {
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-            {/* Images */}
             <motion.div className="lg:col-span-2 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <img src={dancefloor} alt="Evento" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1280} height={960} />
               <img src={heroRave} alt="Rave" className="absolute -bottom-8 right-0 w-2/3 aspect-video object-cover border-4 border-background" loading="lazy" width={1920} height={1080} />
             </motion.div>
-
-            {/* Events List */}
             <div className="lg:col-span-3">
-              <h2 className="font-display text-3xl font-bold mb-2">PROSSIMI <span className="text-neon">EVENTI</span></h2>
+              <h2 className="font-display text-3xl font-bold mb-2">{t("eventi.prossimi")} <span className="text-neon">{t("eventi.title")}</span></h2>
               <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono mb-8">2025 CALENDAR</p>
-
               {events.map((event, i) => (
-                <motion.div
-                  key={i}
-                  className="border-b border-border py-6 group hover:bg-secondary/30 transition-colors px-4 -mx-4"
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}
-                >
+                <motion.div key={i} className="border-b border-border py-6 group hover:bg-secondary/30 transition-colors px-4 -mx-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}>
                   <div className="flex items-start gap-6">
                     <span className="text-primary font-display text-2xl font-bold min-w-[80px]">{event.date}</span>
                     <div className="flex-1">
@@ -130,19 +115,12 @@ const Eventi = () => {
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">DAL <span className="text-neon">DANCEFLOOR</span></h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">MOMENTI DALLA SCENA</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">{t("eventi.dalDancefloor")} <span className="text-neon">DANCEFLOOR</span></h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.momentiScena")}</p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {[dancefloor, heroRave, warehouseRave, storeInterior, warehouseRave, dancefloor, heroRave, storeInterior].map((img, i) => (
-              <motion.div
-                key={i}
-                className="overflow-hidden"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.4, delay: i * 0.06 } } }}
-              >
+              <motion.div key={i} className="overflow-hidden" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.4, delay: i * 0.06 } } }}>
                 <img src={img} alt="" className="w-full aspect-square object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
               </motion.div>
             ))}
@@ -154,18 +132,11 @@ const Eventi = () => {
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8 max-w-3xl">
           <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-3xl font-bold mb-2 text-muted-foreground">EVENTI PASSATI</h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">ARCHIVIO</p>
+            <h2 className="font-display text-3xl font-bold mb-2 text-muted-foreground">{t("eventi.eventiPassati")}</h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.archivio")}</p>
           </motion.div>
           {pastEvents.map((event, i) => (
-            <motion.div
-              key={i}
-              className="border-b border-border/50 py-4 opacity-60 hover:opacity-100 transition-opacity"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-            >
+            <motion.div key={i} className="border-b border-border/50 py-4 opacity-60 hover:opacity-100 transition-opacity" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <div className="flex items-center gap-6">
                 <span className="text-muted-foreground font-display text-lg font-bold min-w-[80px]">{event.date}</span>
                 <div className="flex-1">
@@ -183,15 +154,10 @@ const Eventi = () => {
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8 text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">VUOI ORGANIZZARE UN <span className="text-neon">EVENTO</span>?</h2>
-            <p className="text-muted-foreground text-sm font-mono mb-8 max-w-md mx-auto">
-              Collaboriamo con DJ, collettivi e organizzatori. Scrivici per proposte e collaborazioni.
-            </p>
-            <Link
-              to="/contatti"
-              className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-2"
-            >
-              CONTATTACI <ArrowRight size={14} />
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">{t("eventi.vuoiOrganizzare")} <span className="text-neon">{t("eventi.evento")}</span>?</h2>
+            <p className="text-muted-foreground text-sm font-mono mb-8 max-w-md mx-auto">{t("eventi.collaboriamo")}</p>
+            <Link to="/contatti" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-2">
+              {t("index.contattaci")} <ArrowRight size={14} />
             </Link>
           </motion.div>
         </div>

@@ -40,13 +40,6 @@ const fallbackImages: Record<string, string> = {
   "/shop/gadget-placeholder-4.jpg": gadget4,
 };
 
-const categories: { value: Category; label: string }[] = [
-  { value: "tutti", label: "TUTTI" },
-  { value: "vinili", label: "VINILI" },
-  { value: "streetwear", label: "STREETWEAR" },
-  { value: "gadgets", label: "GADGETS" },
-];
-
 type Product = {
   id: string;
   name: string;
@@ -67,7 +60,15 @@ const Shop = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const { addItem, itemCount } = useCart();
   const { user } = useAuth();
+  const { t } = useLang();
   const navigate = useNavigate();
+
+  const categories: { value: Category; label: string }[] = [
+    { value: "tutti", label: t("shop.tutti") },
+    { value: "vinili", label: t("index.vinili") },
+    { value: "streetwear", label: "STREETWEAR" },
+    { value: "gadgets", label: "GADGETS" },
+  ];
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
@@ -102,7 +103,7 @@ const Shop = () => {
 
   const getCategoryLabel = (cat: string) => {
     const map: Record<string, string> = {
-      vinili: "VINILI",
+      vinili: t("index.vinili"),
       streetwear: "STREETWEAR",
       gadgets: "GADGETS",
     };
@@ -120,21 +121,16 @@ const Shop = () => {
         >
           <div>
             <h1 className="text-4xl md:text-6xl font-display font-bold tracking-tight text-foreground">
-              SHOP
+              {t("shop.title")}
             </h1>
             <p className="text-muted-foreground text-sm tracking-[0.2em] mt-2 font-mono">
-              VINILI · STREETWEAR · GADGETS — UNDERGROUND SELECTION
+              {t("shop.subtitle")}
             </p>
           </div>
-          <Button
-            variant="outline"
-            className="relative border-border text-foreground hover:bg-secondary"
-          >
+          <Button variant="outline" className="relative border-border text-foreground hover:bg-secondary">
             <ShoppingCart className="h-5 w-5" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-mono">
-                {itemCount}
-              </span>
+              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-mono">{itemCount}</span>
             )}
           </Button>
         </motion.div>
@@ -157,14 +153,12 @@ const Shop = () => {
           ))}
         </div>
 
-        {/* Loading */}
         {isLoading && (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         )}
 
-        {/* Product Grid */}
         {!isLoading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filtered.map((product, i) => (
@@ -177,50 +171,28 @@ const Shop = () => {
                 onClick={() => setSelectedProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
-                  <img
-                    src={getImage(product.image_url)}
-                    alt={product.name}
-                    loading="lazy"
-                    width={512}
-                    height={512}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {product.badge && (
-                    <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">
-                      {product.badge}
-                    </Badge>
+                    <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                   )}
                   <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                    <span className="text-foreground text-xs font-mono tracking-[0.2em] bg-background/80 px-4 py-2 border border-border">
-                      DETTAGLI
-                    </span>
+                    <span className="text-foreground text-xs font-mono tracking-[0.2em] bg-background/80 px-4 py-2 border border-border">{t("shop.dettagli")}</span>
                   </div>
                 </div>
                 <div className="p-4 space-y-3">
                   <div>
-                    <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mb-1">
-                      {getCategoryLabel(product.category)}
-                    </p>
-                    <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">
-                      {product.name}
-                    </h3>
-                    <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono line-clamp-1">
-                      {product.description}
-                    </p>
+                    <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mb-1">{getCategoryLabel(product.category)}</p>
+                    <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">{product.name}</h3>
+                    <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono line-clamp-1">{product.description}</p>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-foreground font-mono text-lg font-bold">
-                      €{Number(product.price).toFixed(2)}
-                    </span>
+                    <span className="text-foreground font-mono text-lg font-bold">€{Number(product.price).toFixed(2)}</span>
                     <Button
                       size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddToCart(product.id);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); handleAddToCart(product.id); }}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
                     >
-                      AGGIUNGI
+                      {t("shop.aggiungi")}
                     </Button>
                   </div>
                 </div>
@@ -230,34 +202,13 @@ const Shop = () => {
         )}
 
         {/* Coming soon banner */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="mt-16 border border-border bg-card p-8 text-center"
-        >
-          <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">
-            PAGAMENTO ONLINE IN ARRIVO — STRIPE INTEGRATION COMING SOON
-          </p>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="mt-16 border border-border bg-card p-8 text-center">
+          <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("shop.stripeComing")}</p>
           <p className="text-muted-foreground text-[11px] mt-2 font-mono">
-            Per acquistare contattaci via{" "}
-            <a
-              href="https://wa.me/393714999328"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline hover:text-primary transition-colors"
-            >
-              WhatsApp
-            </a>{" "}
-            o{" "}
-            <a
-              href="https://www.instagram.com/elementi_sonori/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-foreground underline hover:text-primary transition-colors"
-            >
-              Instagram
-            </a>
+            {t("shop.perAcquistare")}{" "}
+            <a href="https://wa.me/393714999328" target="_blank" rel="noopener noreferrer" className="text-foreground underline hover:text-primary transition-colors">WhatsApp</a>
+            {" o "}
+            <a href="https://www.instagram.com/elementi_sonori/" target="_blank" rel="noopener noreferrer" className="text-foreground underline hover:text-primary transition-colors">Instagram</a>
           </p>
         </motion.div>
       </section>
@@ -265,107 +216,55 @@ const Shop = () => {
       {/* Product Detail Modal */}
       <AnimatePresence>
         {selectedProduct && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setSelectedProduct(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3 }}
-              className="bg-card border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Close button */}
-              <button
-                onClick={() => setSelectedProduct(null)}
-                className="absolute top-4 right-4 z-10 text-muted-foreground hover:text-foreground transition-colors bg-card/80 p-2"
-              >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setSelectedProduct(null)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ duration: 0.3 }} className="bg-card border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 z-10 text-muted-foreground hover:text-foreground transition-colors bg-card/80 p-2">
                 <X className="h-5 w-5" />
               </button>
-
               <div className="grid grid-cols-1 md:grid-cols-2">
-                {/* Image */}
                 <div className="aspect-square overflow-hidden">
-                  <img
-                    src={getImage(selectedProduct.image_url)}
-                    alt={selectedProduct.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={getImage(selectedProduct.image_url)} alt={selectedProduct.name} className="w-full h-full object-cover" />
                 </div>
-
-                {/* Details */}
                 <div className="p-6 md:p-8 flex flex-col justify-between">
                   <div className="space-y-4">
                     <div>
-                      <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mb-2">
-                        {getCategoryLabel(selectedProduct.category)}
-                      </p>
+                      <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mb-2">{getCategoryLabel(selectedProduct.category)}</p>
                       {selectedProduct.badge && (
-                        <Badge className="bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none mb-3">
-                          {selectedProduct.badge}
-                        </Badge>
+                        <Badge className="bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none mb-3">{selectedProduct.badge}</Badge>
                       )}
-                      <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide uppercase">
-                        {selectedProduct.name}
-                      </h2>
+                      <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide uppercase">{selectedProduct.name}</h2>
                     </div>
-
-                    <p className="text-muted-foreground text-sm font-mono tracking-wider leading-relaxed">
-                      {selectedProduct.description}
-                    </p>
-
+                    <p className="text-muted-foreground text-sm font-mono tracking-wider leading-relaxed">{selectedProduct.description}</p>
                     <div className="border-t border-border pt-4 space-y-3">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Package className="h-4 w-4" />
                         <span className="text-xs font-mono tracking-wider">
                           {selectedProduct.stock > 0
-                            ? `${selectedProduct.stock} disponibil${selectedProduct.stock === 1 ? "e" : "i"}`
-                            : "ESAURITO"}
+                            ? `${selectedProduct.stock} ${selectedProduct.stock === 1 ? t("shop.disponibile") : t("shop.disponibili")}`
+                            : t("shop.esaurito")}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Truck className="h-4 w-4" />
-                        <span className="text-xs font-mono tracking-wider">
-                          Spedizione in tutta Italia
-                        </span>
+                        <span className="text-xs font-mono tracking-wider">{t("shop.spedizioneItalia")}</span>
                       </div>
                     </div>
                   </div>
-
                   <div className="mt-8 space-y-4">
                     <div className="flex items-end justify-between">
-                      <span className="text-foreground font-mono text-3xl font-bold">
-                        €{Number(selectedProduct.price).toFixed(2)}
-                      </span>
+                      <span className="text-foreground font-mono text-3xl font-bold">€{Number(selectedProduct.price).toFixed(2)}</span>
                     </div>
-
                     <Button
-                      onClick={() => {
-                        handleAddToCart(selectedProduct.id);
-                        setSelectedProduct(null);
-                      }}
+                      onClick={() => { handleAddToCart(selectedProduct.id); setSelectedProduct(null); }}
                       disabled={selectedProduct.stock === 0}
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90 text-xs tracking-[0.2em] font-mono rounded-none py-6"
                     >
-                      {selectedProduct.stock > 0 ? "AGGIUNGI AL CARRELLO" : "ESAURITO"}
+                      {selectedProduct.stock > 0 ? t("shop.aggiungiAlCarrello") : t("shop.esaurito")}
                     </Button>
-
                     <p className="text-muted-foreground text-[10px] font-mono tracking-wider text-center">
-                      Contattaci su{" "}
-                      <a
-                        href="https://wa.me/393714999328"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-foreground underline hover:text-primary"
-                      >
-                        WhatsApp
-                      </a>{" "}
-                      per info su questo prodotto
+                      {t("shop.contattaciProdotto")}{" "}
+                      <a href="https://wa.me/393714999328" target="_blank" rel="noopener noreferrer" className="text-foreground underline hover:text-primary">WhatsApp</a>
+                      {" "}{t("shop.perInfoProdotto")}
                     </p>
                   </div>
                 </div>
