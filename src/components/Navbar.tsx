@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut, User } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, User, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LangContext";
 import logoWhite from "@/assets/logo-white-new.png";
