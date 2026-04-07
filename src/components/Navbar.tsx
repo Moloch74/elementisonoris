@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut, User } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, User, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdmin } from "@/hooks/useAdmin";
 import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LangContext";
 import logoWhite from "@/assets/logo-white-new.png";
@@ -24,6 +25,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { itemCount } = useCart();
   const { t } = useLang();
+  const { isAdmin } = useAdmin();
 
   const displayName = user?.email?.split("@")[0] || "";
 
@@ -71,6 +73,16 @@ const Navbar = () => {
           {/* User area */}
           {user ? (
             <div className="flex items-center gap-3">
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`flex items-center gap-1.5 text-[10px] tracking-[0.2em] font-mono font-bold transition-colors ${
+                    location.pathname === "/admin" ? "text-primary" : "text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" /> ADMIN
+                </Link>
+              )}
               <div className="flex items-center gap-2 text-foreground">
                 <User className="h-3.5 w-3.5 text-primary" />
                 <span className="text-xs font-mono tracking-wider text-foreground">{displayName}</span>
@@ -120,12 +132,19 @@ const Navbar = () => {
                 </Link>
               ))}
               {user ? (
-                <div className="flex items-center justify-between border-t border-border pt-4 mt-2">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-mono text-foreground">{displayName}</span>
+                <div className="border-t border-border pt-4 mt-2 space-y-3">
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsOpen(false)} className="flex items-center gap-2 text-sm tracking-[0.2em] font-mono text-primary font-bold">
+                      <ShieldCheck className="h-4 w-4" /> ADMIN
+                    </Link>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <User className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-mono text-foreground">{displayName}</span>
+                    </div>
+                    <button onClick={() => { signOut(); setIsOpen(false); }} className="text-xs tracking-[0.2em] font-mono text-muted-foreground hover:text-primary">{t("nav.esci")}</button>
                   </div>
-                  <button onClick={() => { signOut(); setIsOpen(false); }} className="text-xs tracking-[0.2em] font-mono text-muted-foreground hover:text-primary">{t("nav.esci")}</button>
                 </div>
               ) : (
                 <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-primary font-bold border-t border-border pt-4 mt-2">{t("nav.accedi")}</Link>
