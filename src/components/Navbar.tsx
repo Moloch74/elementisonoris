@@ -7,6 +7,16 @@ import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LangContext";
 import logoWhite from "@/assets/logo-white-new.png";
 
+const LangSwitch = () => {
+  const { lang, setLang } = useLang();
+  return (
+    <div className="flex items-center gap-0 border border-border overflow-hidden">
+      <button onClick={() => setLang("it")} className={`px-2 py-1 text-[9px] tracking-[0.15em] font-mono font-bold transition-all ${lang === "it" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>IT</button>
+      <button onClick={() => setLang("en")} className={`px-2 py-1 text-[9px] tracking-[0.15em] font-mono font-bold transition-all ${lang === "en" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>EN</button>
+    </div>
+  );
+};
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
@@ -44,6 +54,8 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
+
+          <LangSwitch />
 
           {/* Cart button - more visible */}
           <button
@@ -118,6 +130,9 @@ const Navbar = () => {
               ) : (
                 <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-primary font-bold border-t border-border pt-4 mt-2">{t("auth.registrati")}</Link>
               )}
+              <div className="border-t border-border pt-4 mt-2">
+                <LangSwitch />
+              </div>
             </div>
           </motion.div>
         )}
