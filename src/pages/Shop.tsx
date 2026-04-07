@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { ShoppingCart, Filter, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, Filter, Loader2, X, Package, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
@@ -14,10 +14,13 @@ import streetwear1 from "@/assets/shop/streetwear-placeholder-1.jpg";
 import streetwear2 from "@/assets/shop/streetwear-placeholder-2.jpg";
 import streetwear3 from "@/assets/shop/streetwear-placeholder-3.jpg";
 import streetwear4 from "@/assets/shop/streetwear-placeholder-4.jpg";
+import gadget1 from "@/assets/shop/gadget-placeholder-1.jpg";
+import gadget2 from "@/assets/shop/gadget-placeholder-2.jpg";
+import gadget3 from "@/assets/shop/gadget-placeholder-3.jpg";
+import gadget4 from "@/assets/shop/gadget-placeholder-4.jpg";
 
-type Category = "tutti" | "vinili" | "streetwear";
+type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
 
-// Fallback images map
 const fallbackImages: Record<string, string> = {
   "/shop/vinyl-placeholder-1.jpg": vinyl1,
   "/shop/vinyl-placeholder-2.jpg": vinyl2,
@@ -27,17 +30,38 @@ const fallbackImages: Record<string, string> = {
   "/shop/streetwear-placeholder-2.jpg": streetwear2,
   "/shop/streetwear-placeholder-3.jpg": streetwear3,
   "/shop/streetwear-placeholder-4.jpg": streetwear4,
+  "/shop/gadget-placeholder-1.jpg": gadget1,
+  "/shop/gadget-placeholder-2.jpg": gadget2,
+  "/shop/gadget-placeholder-3.jpg": gadget3,
+  "/shop/gadget-placeholder-4.jpg": gadget4,
 };
 
 const categories: { value: Category; label: string }[] = [
   { value: "tutti", label: "TUTTI" },
   { value: "vinili", label: "VINILI" },
   { value: "streetwear", label: "STREETWEAR" },
+  { value: "gadgets", label: "GADGETS" },
 ];
+
+type Product = {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  image_url: string | null;
+  category: string;
+  stock: number;
+  badge: string | null;
+  is_active: boolean;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+};
 
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [cart, setCart] = useState<string[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["products"],
@@ -48,7 +72,7 @@ const Shop = () => {
         .eq("is_active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data;
+      return data as Product[];
     },
   });
 
@@ -66,6 +90,15 @@ const Shop = () => {
     return fallbackImages[imageUrl] || imageUrl;
   };
 
+  const getCategoryLabel = (cat: string) => {
+    const map: Record<string, string> = {
+      vinili: "VINILI",
+      streetwear: "STREETWEAR",
+      gadgets: "GADGETS",
+    };
+    return map[cat] || cat.toUpperCase();
+  };
+
   return (
     <div className="min-h-screen bg-background pt-20">
       <section className="container mx-auto px-4 md:px-8 py-12">
@@ -80,7 +113,7 @@ const Shop = () => {
               SHOP
             </h1>
             <p className="text-muted-foreground text-sm tracking-[0.2em] mt-2 font-mono">
-              VINILI & STREETWEAR — UNDERGROUND SELECTION
+              VINILI · STREETWEAR · GADGETS — UNDERGROUND SELECTION
             </p>
           </div>
           <Button
@@ -97,7 +130,7 @@ const Shop = () => {
         </motion.div>
 
         {/* Filters */}
-        <div className="flex items-center gap-3 mb-10">
+        <div className="flex items-center gap-3 mb-10 flex-wrap">
           <Filter className="h-4 w-4 text-muted-foreground" />
           {categories.map((cat) => (
             <button
@@ -130,7 +163,8 @@ const Shop = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
-                className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors"
+                className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors cursor-pointer"
+                onClick={() => setSelectedProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
                   <img
@@ -146,13 +180,21 @@ const Shop = () => {
                       {product.badge}
                     </Badge>
                   )}
+                  <div className="absolute inset-0 bg-background/0 group-hover:bg-background/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="text-foreground text-xs font-mono tracking-[0.2em] bg-background/80 px-4 py-2 border border-border">
+                      DETTAGLI
+                    </span>
+                  </div>
                 </div>
                 <div className="p-4 space-y-3">
                   <div>
+                    <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mb-1">
+                      {getCategoryLabel(product.category)}
+                    </p>
                     <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">
                       {product.name}
                     </h3>
-                    <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono">
+                    <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono line-clamp-1">
                       {product.description}
                     </p>
                   </div>
@@ -162,7 +204,10 @@ const Shop = () => {
                     </span>
                     <Button
                       size="sm"
-                      onClick={() => addToCart(product.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product.id);
+                      }}
                       className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
                     >
                       AGGIUNGI
@@ -206,6 +251,119 @@ const Shop = () => {
           </p>
         </motion.div>
       </section>
+
+      {/* Product Detail Modal */}
+      <AnimatePresence>
+        {selectedProduct && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedProduct(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-card border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedProduct(null)}
+                className="absolute top-4 right-4 z-10 text-muted-foreground hover:text-foreground transition-colors bg-card/80 p-2"
+              >
+                <X className="h-5 w-5" />
+              </button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                {/* Image */}
+                <div className="aspect-square overflow-hidden">
+                  <img
+                    src={getImage(selectedProduct.image_url)}
+                    alt={selectedProduct.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+
+                {/* Details */}
+                <div className="p-6 md:p-8 flex flex-col justify-between">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mb-2">
+                        {getCategoryLabel(selectedProduct.category)}
+                      </p>
+                      {selectedProduct.badge && (
+                        <Badge className="bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none mb-3">
+                          {selectedProduct.badge}
+                        </Badge>
+                      )}
+                      <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide uppercase">
+                        {selectedProduct.name}
+                      </h2>
+                    </div>
+
+                    <p className="text-muted-foreground text-sm font-mono tracking-wider leading-relaxed">
+                      {selectedProduct.description}
+                    </p>
+
+                    <div className="border-t border-border pt-4 space-y-3">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Package className="h-4 w-4" />
+                        <span className="text-xs font-mono tracking-wider">
+                          {selectedProduct.stock > 0
+                            ? `${selectedProduct.stock} disponibil${selectedProduct.stock === 1 ? "e" : "i"}`
+                            : "ESAURITO"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Truck className="h-4 w-4" />
+                        <span className="text-xs font-mono tracking-wider">
+                          Spedizione in tutta Italia
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 space-y-4">
+                    <div className="flex items-end justify-between">
+                      <span className="text-foreground font-mono text-3xl font-bold">
+                        €{Number(selectedProduct.price).toFixed(2)}
+                      </span>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        addToCart(selectedProduct.id);
+                        setSelectedProduct(null);
+                      }}
+                      disabled={selectedProduct.stock === 0}
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 text-xs tracking-[0.2em] font-mono rounded-none py-6"
+                    >
+                      {selectedProduct.stock > 0 ? "AGGIUNGI AL CARRELLO" : "ESAURITO"}
+                    </Button>
+
+                    <p className="text-muted-foreground text-[10px] font-mono tracking-wider text-center">
+                      Contattaci su{" "}
+                      <a
+                        href="https://wa.me/393714999328"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-foreground underline hover:text-primary"
+                      >
+                        WhatsApp
+                      </a>{" "}
+                      per info su questo prodotto
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
