@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
@@ -14,6 +14,8 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { itemCount } = useCart();
   const { t } = useLang();
+
+  const displayName = user?.email?.split("@")[0] || "";
 
   const navItems = [
     { label: t("nav.chiSiamo"), path: "/chi-siamo" },
@@ -30,7 +32,7 @@ const Navbar = () => {
           <img src={logoWhite} alt="Elementi Sonori" className="h-12" />
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -42,28 +44,52 @@ const Navbar = () => {
               {item.label}
             </Link>
           ))}
-          <button onClick={() => navigate("/shop")} className="relative text-foreground hover:text-primary transition-colors">
+
+          {/* Cart button - more visible */}
+          <button
+            onClick={() => navigate("/shop")}
+            className="relative border border-primary text-primary px-3 py-1.5 flex items-center gap-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+          >
             <ShoppingCart className="h-4 w-4" />
             {itemCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-mono">{itemCount}</span>
+              <span className="text-[10px] font-mono font-bold tracking-wider">{itemCount}</span>
             )}
           </button>
+
+          {/* User area */}
           {user ? (
-            <button onClick={signOut} className="text-foreground hover:text-primary transition-colors" title={t("nav.esci")}>
-              <LogOut className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-foreground">
+                <User className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-mono tracking-wider text-foreground">{displayName}</span>
+              </div>
+              <button
+                onClick={signOut}
+                className="text-muted-foreground hover:text-primary transition-colors"
+                title={t("nav.esci")}
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ) : (
-            <Link to="/auth" className="text-xs tracking-[0.2em] font-mono text-foreground hover:text-primary transition-colors">
-              <User className="h-4 w-4" />
+            <Link
+              to="/auth"
+              className="border border-foreground/30 text-foreground px-4 py-1.5 text-[10px] tracking-[0.2em] font-mono font-bold hover:border-primary hover:text-primary transition-all duration-300"
+            >
+              {t("auth.registrati")}
             </Link>
           )}
         </div>
 
-        <div className="md:hidden flex items-center gap-3">
-          <button onClick={() => navigate("/shop")} className="relative text-foreground p-2">
-            <ShoppingCart className="h-5 w-5" />
+        {/* Mobile */}
+        <div className="md:hidden flex items-center gap-2">
+          <button
+            onClick={() => navigate("/shop")}
+            className="relative border border-primary text-primary p-2 flex items-center gap-1"
+          >
+            <ShoppingCart className="h-4 w-4" />
             {itemCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-mono">{itemCount}</span>
+              <span className="text-[9px] font-mono font-bold">{itemCount}</span>
             )}
           </button>
           <button onClick={() => setIsOpen(!isOpen)} className="text-foreground p-2" aria-label="Menu">
@@ -82,9 +108,15 @@ const Navbar = () => {
                 </Link>
               ))}
               {user ? (
-                <button onClick={() => { signOut(); setIsOpen(false); }} className="text-sm tracking-[0.2em] font-mono text-foreground text-left">{t("nav.esci")}</button>
+                <div className="flex items-center justify-between border-t border-border pt-4 mt-2">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-mono text-foreground">{displayName}</span>
+                  </div>
+                  <button onClick={() => { signOut(); setIsOpen(false); }} className="text-xs tracking-[0.2em] font-mono text-muted-foreground hover:text-primary">{t("nav.esci")}</button>
+                </div>
               ) : (
-                <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-foreground">{t("nav.accedi")}</Link>
+                <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-primary font-bold border-t border-border pt-4 mt-2">{t("auth.registrati")}</Link>
               )}
             </div>
           </motion.div>
