@@ -25,6 +25,7 @@ const Navbar = () => {
   const { user, signOut } = useAuth();
   const { itemCount } = useCart();
   const { t } = useLang();
+  const { isAdmin } = useAdmin();
 
   const displayName = user?.email?.split("@")[0] || "";
 
