@@ -73,6 +73,16 @@ const Navbar = () => {
           {/* User area */}
           {user ? (
             <div className="flex items-center gap-3">
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`flex items-center gap-1.5 text-[10px] tracking-[0.2em] font-mono font-bold transition-colors ${
+                    location.pathname === "/admin" ? "text-primary" : "text-muted-foreground hover:text-primary"
+                  }`}
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" /> ADMIN
+                </Link>
+              )}
               <div className="flex items-center gap-2 text-foreground">
                 <User className="h-3.5 w-3.5 text-primary" />
                 <span className="text-xs font-mono tracking-wider text-foreground">{displayName}</span>
