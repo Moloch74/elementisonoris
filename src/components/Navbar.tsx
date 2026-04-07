@@ -88,7 +88,7 @@ const Navbar = () => {
               to="/auth"
               className="border border-foreground/30 text-foreground px-4 py-1.5 text-[10px] tracking-[0.2em] font-mono font-bold hover:border-primary hover:text-primary transition-all duration-300"
             >
-              {t("auth.registrati")}
+              {t("nav.accedi")}
             </Link>
           )}
         </div>
@@ -128,7 +128,7 @@ const Navbar = () => {
                   <button onClick={() => { signOut(); setIsOpen(false); }} className="text-xs tracking-[0.2em] font-mono text-muted-foreground hover:text-primary">{t("nav.esci")}</button>
                 </div>
               ) : (
-                <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-primary font-bold border-t border-border pt-4 mt-2">{t("auth.registrati")}</Link>
+                <Link to="/auth" onClick={() => setIsOpen(false)} className="text-sm tracking-[0.2em] font-mono text-primary font-bold border-t border-border pt-4 mt-2">{t("nav.accedi")}</Link>
               )}
               <div className="border-t border-border pt-4 mt-2">
                 <LangSwitch />
