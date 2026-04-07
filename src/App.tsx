@@ -49,6 +49,7 @@ const App = () => (
                   <Route path="/contatti" element={<Contatti />} />
                   <Route path="/shop" element={<Shop />} />
                   <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin" element={<Admin />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
