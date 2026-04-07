@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShoppingCart, Filter } from "lucide-react";
+import { ShoppingCart, Filter, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
 import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
@@ -15,86 +17,17 @@ import streetwear4 from "@/assets/shop/streetwear-placeholder-4.jpg";
 
 type Category = "tutti" | "vinili" | "streetwear";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  category: "vinili" | "streetwear";
-  badge?: string;
-  description: string;
-}
-
-const products: Product[] = [
-  {
-    id: "v1",
-    name: "Neon Circuit EP",
-    price: 18.0,
-    image: vinyl1,
-    category: "vinili",
-    badge: "NUOVO",
-    description: "Techno / Industrial — 12\" Vinyl",
-  },
-  {
-    id: "v2",
-    name: "Acid Terrain Vol. 3",
-    price: 15.0,
-    image: vinyl2,
-    category: "vinili",
-    description: "Acid Techno — 12\" Vinyl",
-  },
-  {
-    id: "v3",
-    name: "Ultimate Core",
-    price: 22.0,
-    image: vinyl3,
-    category: "vinili",
-    badge: "RARO",
-    description: "Hardcore — 12\" Vinyl",
-  },
-  {
-    id: "v4",
-    name: "Tribal Mandala",
-    price: 16.0,
-    image: vinyl4,
-    category: "vinili",
-    description: "Tribal Techno — 12\" Vinyl",
-  },
-  {
-    id: "s1",
-    name: "Hoodie Essential Black",
-    price: 55.0,
-    image: streetwear1,
-    category: "streetwear",
-    badge: "BESTSELLER",
-    description: "Felpa con cappuccio — 100% Cotone",
-  },
-  {
-    id: "s2",
-    name: "Rave Culture Tee",
-    price: 35.0,
-    image: streetwear2,
-    category: "streetwear",
-    description: "T-shirt grafica — Underground Print",
-  },
-  {
-    id: "s3",
-    name: "Snapback Underground",
-    price: 28.0,
-    image: streetwear3,
-    category: "streetwear",
-    description: "Cappello snapback — Logo ricamato",
-  },
-  {
-    id: "s4",
-    name: "Tote Bag Music Culture",
-    price: 20.0,
-    image: streetwear4,
-    category: "streetwear",
-    badge: "NUOVO",
-    description: "Borsa in tela — Stampa serigrafica",
-  },
-];
+// Fallback images map
+const fallbackImages: Record<string, string> = {
+  "/shop/vinyl-placeholder-1.jpg": vinyl1,
+  "/shop/vinyl-placeholder-2.jpg": vinyl2,
+  "/shop/vinyl-placeholder-3.jpg": vinyl3,
+  "/shop/vinyl-placeholder-4.jpg": vinyl4,
+  "/shop/streetwear-placeholder-1.jpg": streetwear1,
+  "/shop/streetwear-placeholder-2.jpg": streetwear2,
+  "/shop/streetwear-placeholder-3.jpg": streetwear3,
+  "/shop/streetwear-placeholder-4.jpg": streetwear4,
+};
 
 const categories: { value: Category; label: string }[] = [
   { value: "tutti", label: "TUTTI" },
@@ -106,6 +39,19 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [cart, setCart] = useState<string[]>([]);
 
+  const { data: products = [], isLoading } = useQuery({
+    queryKey: ["products"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const filtered =
     activeCategory === "tutti"
       ? products
@@ -115,9 +61,13 @@ const Shop = () => {
     setCart((prev) => [...prev, id]);
   };
 
+  const getImage = (imageUrl: string | null) => {
+    if (!imageUrl) return vinyl1;
+    return fallbackImages[imageUrl] || imageUrl;
+  };
+
   return (
     <div className="min-h-screen bg-background pt-20">
-      {/* Header */}
       <section className="container mx-auto px-4 md:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -164,56 +114,65 @@ const Shop = () => {
           ))}
         </div>
 
+        {/* Loading */}
+        {isLoading && (
+          <div className="flex justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
+
         {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((product, i) => (
-            <motion.div
-              key={product.id}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors"
-            >
-              <div className="relative aspect-square overflow-hidden">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  loading="lazy"
-                  width={512}
-                  height={512}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                {product.badge && (
-                  <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">
-                    {product.badge}
-                  </Badge>
-                )}
-              </div>
-              <div className="p-4 space-y-3">
-                <div>
-                  <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">
-                    {product.name}
-                  </h3>
-                  <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono">
-                    {product.description}
-                  </p>
+        {!isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filtered.map((product, i) => (
+              <motion.div
+                key={product.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors"
+              >
+                <div className="relative aspect-square overflow-hidden">
+                  <img
+                    src={getImage(product.image_url)}
+                    alt={product.name}
+                    loading="lazy"
+                    width={512}
+                    height={512}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  {product.badge && (
+                    <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">
+                      {product.badge}
+                    </Badge>
+                  )}
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-foreground font-mono text-lg font-bold">
-                    €{product.price.toFixed(2)}
-                  </span>
-                  <Button
-                    size="sm"
-                    onClick={() => addToCart(product.id)}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
-                  >
-                    AGGIUNGI
-                  </Button>
+                <div className="p-4 space-y-3">
+                  <div>
+                    <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">
+                      {product.name}
+                    </h3>
+                    <p className="text-muted-foreground text-[11px] tracking-wider mt-1 font-mono">
+                      {product.description}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground font-mono text-lg font-bold">
+                      €{Number(product.price).toFixed(2)}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={() => addToCart(product.id)}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
+                    >
+                      AGGIUNGI
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
 
         {/* Coming soon banner */}
         <motion.div
