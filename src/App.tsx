@@ -38,6 +38,7 @@ const App = () => (
               <VinylCursor />
               <Navbar />
               <LanguageToggle />
+              <WhatsAppButton />
               <main>
                 <Routes>
                   <Route path="/" element={<Index />} />
