@@ -11,7 +11,6 @@ import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/ScrollToTop";
 import StreetAnimations from "@/components/StreetAnimations";
 import VinylCursor from "@/components/VinylCursor";
-import LanguageToggle from "@/components/LanguageToggle";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Index from "./pages/Index.tsx";
 import ChiSiamo from "./pages/ChiSiamo.tsx";
@@ -38,7 +37,7 @@ const App = () => (
               <StreetAnimations />
               <VinylCursor />
               <Navbar />
-              <LanguageToggle />
+              
               <WhatsAppButton />
               <main>
                 <Routes>
