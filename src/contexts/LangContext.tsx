@@ -272,7 +272,6 @@ const translations: Record<string, Record<Lang, string>> = {
   "cart.svuotaConferma": { it: "Svuotare il carrello?", en: "Clear the cart?" },
   "cart.riepilogo": { it: "RIEPILOGO ORDINE", en: "ORDER SUMMARY" },
   "cart.totale": { it: "TOTALE", en: "TOTAL" },
-  "cart.subtotale": { it: "Subtotale", en: "Subtotal" },
   "cart.sconto": { it: "Sconto", en: "Discount" },
   "cart.codiceCoupon": { it: "CODICE COUPON", en: "COUPON CODE" },
   "cart.inserisciCoupon": { it: "es. WELCOME20", en: "e.g. WELCOME20" },
