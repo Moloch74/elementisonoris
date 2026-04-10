@@ -464,6 +464,7 @@ const Admin = () => {
     { key: "orders", label: "ORDINI", icon: <ShoppingBag className="h-4 w-4" /> },
     { key: "customers", label: "CLIENTI", icon: <Users className="h-4 w-4" /> },
     { key: "ecommerce", label: "E-COMMERCE", icon: <Tag className="h-4 w-4" /> },
+    { key: "events", label: "EVENTI", icon: <CalendarDays className="h-4 w-4" /> },
   ];
 
   return (
