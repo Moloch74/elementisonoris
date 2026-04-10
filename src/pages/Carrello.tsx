@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2, Tag, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LangContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
 import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
@@ -52,6 +55,10 @@ const Carrello = () => {
   const { t } = useLang();
   const navigate = useNavigate();
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: string; discount_value: number; min_order: number } | null>(null);
+  const [validating, setValidating] = useState(false);
+
   // Fetch product details for all cart items
   const productIds = items.map((i) => i.product_id);
   const { data: products = [], isLoading: productsLoading } = useQuery({
@@ -76,6 +83,60 @@ const Carrello = () => {
     if (!item.product) return sum;
     return sum + Number(item.product.price) * item.quantity;
   }, 0);
+
+  const discount = appliedCoupon
+    ? appliedCoupon.discount_type === "percentage"
+      ? total * (appliedCoupon.discount_value / 100)
+      : Math.min(appliedCoupon.discount_value, total)
+    : 0;
+
+  const finalTotal = Math.max(0, total - discount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidating(true);
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.toUpperCase().trim())
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) {
+        toast.error(t("cart.couponInvalido") || "Coupon non valido");
+        return;
+      }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        toast.error(t("cart.couponScaduto") || "Coupon scaduto");
+        return;
+      }
+      if (data.max_uses && data.used_count >= data.max_uses) {
+        toast.error(t("cart.couponEsaurito") || "Coupon esaurito");
+        return;
+      }
+      if (total < Number(data.min_order)) {
+        toast.error(`${t("cart.couponMinimo") || "Ordine minimo"}: €${Number(data.min_order).toFixed(2)}`);
+        return;
+      }
+      setAppliedCoupon({
+        code: data.code,
+        discount_type: data.discount_type,
+        discount_value: Number(data.discount_value),
+        min_order: Number(data.min_order),
+      });
+      toast.success(`${t("cart.couponApplicato") || "Coupon applicato"}: ${data.code}`);
+    } catch {
+      toast.error(t("cart.couponErrore") || "Errore nella validazione del coupon");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
 
   if (!user) {
     return (
@@ -230,9 +291,59 @@ const Carrello = () => {
                   ))}
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-mono tracking-[0.2em] text-muted-foreground">{t("cart.totale")}</span>
-                  <span className="text-2xl font-display font-bold text-foreground">€{total.toFixed(2)}</span>
+                {/* Coupon */}
+                <div className="space-y-3 border-b border-border pb-4">
+                  <p className="text-[10px] font-mono tracking-[0.2em] text-muted-foreground">{t("cart.codiceCoupon") || "CODICE COUPON"}</p>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-primary/10 border border-primary/30 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                        <code className="text-sm font-mono font-bold text-primary">{appliedCoupon.code}</code>
+                        <span className="text-[10px] font-mono text-primary">
+                          {appliedCoupon.discount_type === "percentage" ? `-${appliedCoupon.discount_value}%` : `-€${appliedCoupon.discount_value.toFixed(2)}`}
+                        </span>
+                      </div>
+                      <button onClick={removeCoupon} className="text-muted-foreground hover:text-destructive transition-colors">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder={t("cart.inserisciCoupon") || "es. WELCOME20"}
+                        className="bg-background border-border font-mono text-sm uppercase flex-1"
+                        onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                      />
+                      <Button
+                        onClick={handleApplyCoupon}
+                        disabled={validating || !couponCode.trim()}
+                        variant="outline"
+                        className="border-border font-mono text-xs tracking-[0.15em] rounded-none px-4 shrink-0"
+                      >
+                        {validating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Tag className="h-3.5 w-3.5" />}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Totals */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-muted-foreground">{t("cart.subtotale") || "Subtotale"}</span>
+                    <span className="text-foreground">€{total.toFixed(2)}</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-primary">{t("cart.sconto") || "Sconto"}</span>
+                      <span className="text-primary">-€{discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                    <span className="text-sm font-mono tracking-[0.2em] text-muted-foreground">{t("cart.totale")}</span>
+                    <span className="text-2xl font-display font-bold text-foreground">€{finalTotal.toFixed(2)}</span>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
