@@ -291,9 +291,59 @@ const Carrello = () => {
                   ))}
                 </div>
 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-mono tracking-[0.2em] text-muted-foreground">{t("cart.totale")}</span>
-                  <span className="text-2xl font-display font-bold text-foreground">€{total.toFixed(2)}</span>
+                {/* Coupon */}
+                <div className="space-y-3 border-b border-border pb-4">
+                  <p className="text-[10px] font-mono tracking-[0.2em] text-muted-foreground">{t("cart.codiceCoupon") || "CODICE COUPON"}</p>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-primary/10 border border-primary/30 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                        <code className="text-sm font-mono font-bold text-primary">{appliedCoupon.code}</code>
+                        <span className="text-[10px] font-mono text-primary">
+                          {appliedCoupon.discount_type === "percentage" ? `-${appliedCoupon.discount_value}%` : `-€${appliedCoupon.discount_value.toFixed(2)}`}
+                        </span>
+                      </div>
+                      <button onClick={removeCoupon} className="text-muted-foreground hover:text-destructive transition-colors">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder={t("cart.inserisciCoupon") || "es. WELCOME20"}
+                        className="bg-background border-border font-mono text-sm uppercase flex-1"
+                        onKeyDown={(e) => e.key === "Enter" && handleApplyCoupon()}
+                      />
+                      <Button
+                        onClick={handleApplyCoupon}
+                        disabled={validating || !couponCode.trim()}
+                        variant="outline"
+                        className="border-border font-mono text-xs tracking-[0.15em] rounded-none px-4 shrink-0"
+                      >
+                        {validating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Tag className="h-3.5 w-3.5" />}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Totals */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-mono">
+                    <span className="text-muted-foreground">{t("cart.subtotale") || "Subtotale"}</span>
+                    <span className="text-foreground">€{total.toFixed(2)}</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-primary">{t("cart.sconto") || "Sconto"}</span>
+                      <span className="text-primary">-€{discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center pt-2 border-t border-border">
+                    <span className="text-sm font-mono tracking-[0.2em] text-muted-foreground">{t("cart.totale")}</span>
+                    <span className="text-2xl font-display font-bold text-foreground">€{finalTotal.toFixed(2)}</span>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
