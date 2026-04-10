@@ -4,7 +4,7 @@ import {
   Plus, Pencil, Trash2, Loader2, X, Save, ShieldAlert,
   Image as ImageIcon, Package, Users, ShoppingBag, BarChart3,
   Eye, ChevronDown, ChevronUp, Star, StarOff, Tag, Mail, Send,
-  Percent, DollarSign, Copy, Check,
+  Percent, DollarSign, Copy, Check, CalendarDays, MapPin, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,24 @@ const statusColors: Record<OrderStatus, string> = {
   cancelled: "bg-red-500/20 text-red-400",
 };
 
-type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce";
+type EventForm = {
+  name: string;
+  date_label: string;
+  location: string;
+  tag: string;
+  description: string;
+  time_range: string;
+  is_upcoming: boolean;
+  is_active: boolean;
+  sort_order: string;
+};
+
+const emptyEventForm: EventForm = {
+  name: "", date_label: "", location: "", tag: "IN-STORE",
+  description: "", time_range: "", is_upcoming: true, is_active: true, sort_order: "0",
+};
+
+type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce" | "events";
 
 const Admin = () => {
   const { user } = useAuth();
@@ -85,6 +102,11 @@ const Admin = () => {
   const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Event state
+  const [eventForm, setEventForm] = useState<EventForm>(emptyEventForm);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [showEventForm, setShowEventForm] = useState(false);
 
   // Ecommerce sub-tab
   const [ecommerceTab, setEcommerceTab] = useState<"featured" | "coupons" | "email">("featured");
@@ -142,6 +164,16 @@ const Admin = () => {
     enabled: isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ["admin-events"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("events").select("*").order("sort_order", { ascending: true });
       if (error) throw error;
       return data;
     },
