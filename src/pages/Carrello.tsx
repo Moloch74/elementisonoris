@@ -55,6 +55,10 @@ const Carrello = () => {
   const { t } = useLang();
   const navigate = useNavigate();
 
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount_type: string; discount_value: number; min_order: number } | null>(null);
+  const [validating, setValidating] = useState(false);
+
   // Fetch product details for all cart items
   const productIds = items.map((i) => i.product_id);
   const { data: products = [], isLoading: productsLoading } = useQuery({
