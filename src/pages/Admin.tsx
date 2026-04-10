@@ -4,7 +4,7 @@ import {
   Plus, Pencil, Trash2, Loader2, X, Save, ShieldAlert,
   Image as ImageIcon, Package, Users, ShoppingBag, BarChart3,
   Eye, ChevronDown, ChevronUp, Star, StarOff, Tag, Mail, Send,
-  Percent, DollarSign, Copy, Check,
+  Percent, DollarSign, Copy, Check, CalendarDays, MapPin, Clock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +66,24 @@ const statusColors: Record<OrderStatus, string> = {
   cancelled: "bg-red-500/20 text-red-400",
 };
 
-type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce";
+type EventForm = {
+  name: string;
+  date_label: string;
+  location: string;
+  tag: string;
+  description: string;
+  time_range: string;
+  is_upcoming: boolean;
+  is_active: boolean;
+  sort_order: string;
+};
+
+const emptyEventForm: EventForm = {
+  name: "", date_label: "", location: "", tag: "IN-STORE",
+  description: "", time_range: "", is_upcoming: true, is_active: true, sort_order: "0",
+};
+
+type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce" | "events";
 
 const Admin = () => {
   const { user } = useAuth();
@@ -85,6 +102,11 @@ const Admin = () => {
   const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
   const [showCouponForm, setShowCouponForm] = useState(false);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Event state
+  const [eventForm, setEventForm] = useState<EventForm>(emptyEventForm);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [showEventForm, setShowEventForm] = useState(false);
 
   // Ecommerce sub-tab
   const [ecommerceTab, setEcommerceTab] = useState<"featured" | "coupons" | "email">("featured");
@@ -142,6 +164,16 @@ const Admin = () => {
     enabled: isAdmin,
     queryFn: async () => {
       const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ["admin-events"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("events").select("*").order("sort_order", { ascending: true });
       if (error) throw error;
       return data;
     },
@@ -257,6 +289,50 @@ const Admin = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // ─── Event Mutations ───
+  const saveEventMutation = useMutation({
+    mutationFn: async () => {
+      const payload: any = {
+        name: eventForm.name,
+        date_label: eventForm.date_label,
+        location: eventForm.location,
+        tag: eventForm.tag,
+        description: eventForm.description || "",
+        time_range: eventForm.time_range || "",
+        is_upcoming: eventForm.is_upcoming,
+        is_active: eventForm.is_active,
+        sort_order: parseInt(eventForm.sort_order) || 0,
+      };
+      if (editingEventId) {
+        const { error } = await supabase.from("events").update(payload).eq("id", editingEventId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("events").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(editingEventId ? "Evento aggiornato!" : "Evento creato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      queryClient.invalidateQueries({ queryKey: ["public-events"] });
+      resetEventForm();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteEventMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("events").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Evento eliminato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      queryClient.invalidateQueries({ queryKey: ["public-events"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   // ─── Helpers ───
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -306,6 +382,20 @@ const Admin = () => {
   };
 
   const resetCouponForm = () => { setCouponForm(emptyCouponForm); setEditingCouponId(null); setShowCouponForm(false); };
+
+  const startEditEvent = (event: typeof events[0]) => {
+    setEditingEventId(event.id);
+    setEventForm({
+      name: event.name, date_label: event.date_label,
+      location: event.location, tag: event.tag,
+      description: event.description || "", time_range: event.time_range || "",
+      is_upcoming: event.is_upcoming, is_active: event.is_active,
+      sort_order: String(event.sort_order),
+    });
+    setShowEventForm(true);
+  };
+
+  const resetEventForm = () => { setEventForm(emptyEventForm); setEditingEventId(null); setShowEventForm(false); };
 
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
@@ -374,6 +464,7 @@ const Admin = () => {
     { key: "orders", label: "ORDINI", icon: <ShoppingBag className="h-4 w-4" /> },
     { key: "customers", label: "CLIENTI", icon: <Users className="h-4 w-4" /> },
     { key: "ecommerce", label: "E-COMMERCE", icon: <Tag className="h-4 w-4" /> },
+    { key: "events", label: "EVENTI", icon: <CalendarDays className="h-4 w-4" /> },
   ];
 
   return (
@@ -795,6 +886,123 @@ const Admin = () => {
             )}
           </motion.div>
         )}
+
+        {/* ═══════════════ EVENTS ═══════════════ */}
+        {activeTab === "events" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-muted-foreground text-xs font-mono tracking-[0.2em]">{events.length} EVENTI</p>
+              <Button onClick={() => { resetEventForm(); setShowEventForm(true); }} className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none gap-2">
+                <Plus className="h-4 w-4" /> NUOVO EVENTO
+              </Button>
+            </div>
+
+            {eventsLoading ? (
+              <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground font-mono text-sm">Nessun evento creato.</div>
+            ) : (
+              <div className="space-y-0 border border-border">
+                <div className="hidden md:grid grid-cols-[80px_1fr_150px_100px_100px_60px_60px_100px] gap-4 px-6 py-3 bg-secondary text-muted-foreground text-[10px] tracking-[0.2em] font-mono border-b border-border">
+                  <span>DATA</span><span>NOME</span><span>LOCATION</span><span>TAG</span><span>ORARIO</span><span>TIPO</span><span>STATO</span><span className="text-right">AZIONI</span>
+                </div>
+                {events.map((event) => (
+                  <div key={event.id} className="grid grid-cols-1 md:grid-cols-[80px_1fr_150px_100px_100px_60px_60px_100px] gap-4 px-6 py-4 border-b border-border items-center hover:bg-secondary/50 transition-colors">
+                    <span className="text-primary font-display text-lg font-bold">{event.date_label}</span>
+                    <div>
+                      <p className="text-foreground text-sm font-display font-semibold">{event.name}</p>
+                      {event.description && <p className="text-muted-foreground text-[10px] font-mono truncate max-w-[200px]">{event.description}</p>}
+                    </div>
+                    <span className="text-muted-foreground text-xs font-mono flex items-center gap-1"><MapPin className="h-3 w-3" /> {event.location}</span>
+                    <span className="border border-primary text-primary text-[10px] tracking-[0.15em] px-2 py-0.5 font-mono text-center">{event.tag}</span>
+                    <span className="text-muted-foreground text-xs font-mono flex items-center gap-1"><Clock className="h-3 w-3" /> {event.time_range || "—"}</span>
+                    <span className="text-[10px] font-mono text-muted-foreground">{event.is_upcoming ? "PROS." : "PASS."}</span>
+                    <span>
+                      <span className={`inline-block w-2 h-2 rounded-full mr-1 ${event.is_active ? "bg-primary" : "bg-destructive"}`} />
+                      <span className="text-[10px] font-mono text-muted-foreground">{event.is_active ? "ON" : "OFF"}</span>
+                    </span>
+                    <div className="flex justify-end gap-2">
+                      <button onClick={() => startEditEvent(event)} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Pencil className="h-4 w-4" /></button>
+                      <button onClick={() => { if (confirm("Eliminare questo evento?")) deleteEventMutation.mutate(event.id); }} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="h-4 w-4" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* ═══════════════ Event Form Modal ═══════════════ */}
+        <AnimatePresence>
+          {showEventForm && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={resetEventForm}>
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-card border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-display text-2xl font-bold text-foreground">{editingEventId ? "MODIFICA EVENTO" : "NUOVO EVENTO"}</h2>
+                  <button onClick={resetEventForm} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+                </div>
+                <form onSubmit={(e) => { e.preventDefault(); saveEventMutation.mutate(); }} className="space-y-4">
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">NOME EVENTO *</label>
+                    <Input value={eventForm.name} onChange={(e) => setEventForm({ ...eventForm, name: e.target.value })} className="bg-background border-border font-mono text-sm" placeholder="es. VINYL ONLY NIGHT" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">DATA *</label>
+                      <Input value={eventForm.date_label} onChange={(e) => setEventForm({ ...eventForm, date_label: e.target.value })} className="bg-background border-border font-mono text-sm" placeholder="es. 12 APR" required />
+                    </div>
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">TAG *</label>
+                      <Input value={eventForm.tag} onChange={(e) => setEventForm({ ...eventForm, tag: e.target.value.toUpperCase() })} className="bg-background border-border font-mono text-sm" placeholder="es. IN-STORE, RAVE" required />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">LOCATION *</label>
+                    <Input value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} className="bg-background border-border font-mono text-sm" placeholder="es. Elementi Sonori — Lecce" required />
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">ORARIO</label>
+                    <Input value={eventForm.time_range} onChange={(e) => setEventForm({ ...eventForm, time_range: e.target.value })} className="bg-background border-border font-mono text-sm" placeholder="es. 21:00 — 02:00" />
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">DESCRIZIONE</label>
+                    <Textarea value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} className="bg-background border-border font-mono text-sm min-h-[80px] resize-none" placeholder="Descrizione evento..." />
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">ORDINE</label>
+                    <Input type="number" min="0" value={eventForm.sort_order} onChange={(e) => setEventForm({ ...eventForm, sort_order: e.target.value })} className="bg-background border-border font-mono text-sm" />
+                  </div>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => setEventForm({ ...eventForm, is_upcoming: !eventForm.is_upcoming })}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${eventForm.is_upcoming ? "bg-primary" : "bg-muted"}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${eventForm.is_upcoming ? "left-5" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">{eventForm.is_upcoming ? "PROSSIMO" : "PASSATO"}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => setEventForm({ ...eventForm, is_active: !eventForm.is_active })}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${eventForm.is_active ? "bg-primary" : "bg-muted"}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${eventForm.is_active ? "left-5" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">{eventForm.is_active ? "VISIBILE" : "NASCOSTO"}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button type="submit" disabled={saveEventMutation.isPending}
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none py-5 gap-2">
+                      {saveEventMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {editingEventId ? "AGGIORNA" : "CREA EVENTO"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={resetEventForm} className="border-border font-mono text-xs tracking-[0.2em] rounded-none">ANNULLA</Button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* ═══════════════ Product Form Modal ═══════════════ */}
         <AnimatePresence>

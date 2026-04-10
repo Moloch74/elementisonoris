@@ -91,6 +91,51 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          created_at: string
+          date_label: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_upcoming: boolean
+          location: string
+          name: string
+          sort_order: number
+          tag: string
+          time_range: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date_label: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_upcoming?: boolean
+          location?: string
+          name: string
+          sort_order?: number
+          tag?: string
+          time_range?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date_label?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_upcoming?: boolean
+          location?: string
+          name?: string
+          sort_order?: number
+          tag?: string
+          time_range?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
