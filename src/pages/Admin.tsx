@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Plus, Pencil, Trash2, Loader2, X, Save, ShieldAlert,
   Image as ImageIcon, Package, Users, ShoppingBag, BarChart3,
-  Eye, ChevronDown, ChevronUp,
+  Eye, ChevronDown, ChevronUp, Star, StarOff, Tag, Mail, Send,
+  Percent, DollarSign, Copy, Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 type ProductCategory = Database["public"]["Enums"]["product_category"];
 type OrderStatus = Database["public"]["Enums"]["order_status"];
+type DiscountType = Database["public"]["Enums"]["discount_type"];
 
 type ProductForm = {
   name: string;
@@ -30,11 +32,27 @@ type ProductForm = {
   badge: string;
   image_url: string;
   is_active: boolean;
+  is_featured: boolean;
 };
 
 const emptyForm: ProductForm = {
   name: "", description: "", price: "", category: "vinili",
-  stock: "0", badge: "", image_url: "", is_active: true,
+  stock: "0", badge: "", image_url: "", is_active: true, is_featured: false,
+};
+
+type CouponForm = {
+  code: string;
+  discount_type: DiscountType;
+  discount_value: string;
+  min_order: string;
+  max_uses: string;
+  is_active: boolean;
+  expires_at: string;
+};
+
+const emptyCouponForm: CouponForm = {
+  code: "", discount_type: "percentage", discount_value: "",
+  min_order: "0", max_uses: "", is_active: true, expires_at: "",
 };
 
 const categories: ProductCategory[] = ["vinili", "streetwear", "gadgets"];
@@ -48,7 +66,7 @@ const statusColors: Record<OrderStatus, string> = {
   cancelled: "bg-red-500/20 text-red-400",
 };
 
-type Tab = "overview" | "products" | "orders" | "customers";
+type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce";
 
 const Admin = () => {
   const { user } = useAuth();
@@ -61,6 +79,21 @@ const Admin = () => {
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+
+  // Coupon state
+  const [couponForm, setCouponForm] = useState<CouponForm>(emptyCouponForm);
+  const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
+  const [showCouponForm, setShowCouponForm] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
+
+  // Ecommerce sub-tab
+  const [ecommerceTab, setEcommerceTab] = useState<"featured" | "coupons" | "email">("featured");
+
+  // Email state
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
+  const [emailRecipients, setEmailRecipients] = useState<string[]>([]);
+  const [sendingEmail, setSendingEmail] = useState(false);
 
   // ─── Queries ───
   const { data: products = [], isLoading: productsLoading } = useQuery({
@@ -104,7 +137,17 @@ const Admin = () => {
     },
   });
 
-  // ─── Mutations ───
+  const { data: coupons = [], isLoading: couponsLoading } = useQuery({
+    queryKey: ["admin-coupons"],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const { data, error } = await supabase.from("coupons").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  // ─── Product Mutations ───
   const saveMutation = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -116,6 +159,7 @@ const Admin = () => {
         badge: form.badge || null,
         image_url: form.image_url || null,
         is_active: form.is_active,
+        is_featured: form.is_featured,
       };
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
@@ -147,6 +191,20 @@ const Admin = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  const toggleFeatured = useMutation({
+    mutationFn: async ({ id, featured }: { id: string; featured: boolean }) => {
+      const { error } = await supabase.from("products").update({ is_featured: featured }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Prodotto aggiornato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  // ─── Order Mutations ───
   const updateOrderStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: OrderStatus }) => {
       const { error } = await supabase.from("orders").update({ status }).eq("id", id);
@@ -155,6 +213,46 @@ const Admin = () => {
     onSuccess: () => {
       toast.success("Stato ordine aggiornato!");
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  // ─── Coupon Mutations ───
+  const saveCouponMutation = useMutation({
+    mutationFn: async () => {
+      const payload: any = {
+        code: couponForm.code.toUpperCase().trim(),
+        discount_type: couponForm.discount_type,
+        discount_value: parseFloat(couponForm.discount_value),
+        min_order: parseFloat(couponForm.min_order) || 0,
+        max_uses: couponForm.max_uses ? parseInt(couponForm.max_uses) : null,
+        is_active: couponForm.is_active,
+        expires_at: couponForm.expires_at || null,
+      };
+      if (editingCouponId) {
+        const { error } = await supabase.from("coupons").update(payload).eq("id", editingCouponId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("coupons").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(editingCouponId ? "Coupon aggiornato!" : "Coupon creato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
+      resetCouponForm();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteCouponMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("coupons").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Coupon eliminato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-coupons"] });
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -186,11 +284,66 @@ const Admin = () => {
       price: String(product.price), category: product.category,
       stock: String(product.stock), badge: product.badge || "",
       image_url: product.image_url || "", is_active: product.is_active,
+      is_featured: (product as any).is_featured ?? false,
     });
     setShowForm(true);
   };
 
   const resetForm = () => { setForm(emptyForm); setEditingId(null); setShowForm(false); };
+
+  const startEditCoupon = (coupon: typeof coupons[0]) => {
+    setEditingCouponId(coupon.id);
+    setCouponForm({
+      code: coupon.code,
+      discount_type: coupon.discount_type,
+      discount_value: String(coupon.discount_value),
+      min_order: String(coupon.min_order),
+      max_uses: coupon.max_uses ? String(coupon.max_uses) : "",
+      is_active: coupon.is_active,
+      expires_at: coupon.expires_at ? coupon.expires_at.slice(0, 16) : "",
+    });
+    setShowCouponForm(true);
+  };
+
+  const resetCouponForm = () => { setCouponForm(emptyCouponForm); setEditingCouponId(null); setShowCouponForm(false); };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
+  };
+
+  const handleSendEmail = async () => {
+    if (!emailSubject.trim() || !emailBody.trim() || emailRecipients.length === 0) {
+      toast.error("Compila tutti i campi e seleziona almeno un destinatario.");
+      return;
+    }
+    setSendingEmail(true);
+    try {
+      // For now, open mailto with selected recipients
+      const mailto = `mailto:${emailRecipients.join(",")}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+      window.open(mailto, "_blank");
+      toast.success(`Email preparata per ${emailRecipients.length} destinatari!`);
+      setEmailSubject("");
+      setEmailBody("");
+      setEmailRecipients([]);
+    } catch {
+      toast.error("Errore nell'invio email.");
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const toggleRecipient = (email: string) => {
+    setEmailRecipients((prev) =>
+      prev.includes(email) ? prev.filter((e) => e !== email) : [...prev, email]
+    );
+  };
+
+  const selectAllRecipients = () => {
+    const allEmails = profiles.filter((p) => p.email).map((p) => p.email!);
+    setEmailRecipients((prev) => prev.length === allEmails.length ? [] : allEmails);
+  };
 
   // ─── Guards ───
   if (!user) return <Navigate to="/auth" replace />;
@@ -213,12 +366,14 @@ const Admin = () => {
   const totalRevenue = orders.filter(o => o.status !== "cancelled").reduce((s, o) => s + Number(o.total), 0);
   const activeProducts = products.filter(p => p.is_active).length;
   const pendingOrders = orders.filter(o => o.status === "pending").length;
+  const featuredProducts = products.filter(p => (p as any).is_featured);
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "DASHBOARD", icon: <BarChart3 className="h-4 w-4" /> },
     { key: "products", label: "PRODOTTI", icon: <Package className="h-4 w-4" /> },
     { key: "orders", label: "ORDINI", icon: <ShoppingBag className="h-4 w-4" /> },
     { key: "customers", label: "CLIENTI", icon: <Users className="h-4 w-4" /> },
+    { key: "ecommerce", label: "E-COMMERCE", icon: <Tag className="h-4 w-4" /> },
   ];
 
   return (
@@ -236,7 +391,7 @@ const Admin = () => {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 px-5 py-3 text-[10px] tracking-[0.2em] font-mono font-bold transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-4 py-3 text-[10px] tracking-[0.15em] font-mono font-bold transition-all whitespace-nowrap ${
                 activeTab === tab.key
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary"
@@ -265,33 +420,37 @@ const Admin = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="border border-border bg-card p-5">
-                <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">CLIENTI REGISTRATI</h3>
+                <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">CLIENTI</h3>
                 <p className="text-3xl font-display font-bold text-foreground">{profiles.length}</p>
-                <button onClick={() => setActiveTab("customers")} className="text-[10px] tracking-[0.2em] font-mono text-primary mt-3 hover:underline">
-                  VEDI TUTTI →
-                </button>
+                <button onClick={() => setActiveTab("customers")} className="text-[10px] tracking-[0.2em] font-mono text-primary mt-3 hover:underline">VEDI TUTTI →</button>
               </div>
               <div className="border border-border bg-card p-5">
-                <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">ULTIMI ORDINI</h3>
-                {orders.slice(0, 3).map((o) => (
-                  <div key={o.id} className="flex justify-between items-center py-2 border-b border-border last:border-0">
-                    <span className="text-xs font-mono text-muted-foreground">{o.email || "N/A"}</span>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xs font-mono font-bold text-foreground">€{Number(o.total).toFixed(2)}</span>
-                      <Badge className={`${statusColors[o.status]} text-[8px] tracking-wider font-mono rounded-none border-0`}>
-                        {o.status.toUpperCase()}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-                {orders.length > 3 && (
-                  <button onClick={() => setActiveTab("orders")} className="text-[10px] tracking-[0.2em] font-mono text-primary mt-3 hover:underline">
-                    VEDI TUTTI →
-                  </button>
-                )}
+                <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">IN EVIDENZA</h3>
+                <p className="text-3xl font-display font-bold text-foreground">{featuredProducts.length}</p>
+                <button onClick={() => { setActiveTab("ecommerce"); setEcommerceTab("featured"); }} className="text-[10px] tracking-[0.2em] font-mono text-primary mt-3 hover:underline">GESTISCI →</button>
               </div>
+              <div className="border border-border bg-card p-5">
+                <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">COUPON ATTIVI</h3>
+                <p className="text-3xl font-display font-bold text-foreground">{coupons.filter(c => c.is_active).length}</p>
+                <button onClick={() => { setActiveTab("ecommerce"); setEcommerceTab("coupons"); }} className="text-[10px] tracking-[0.2em] font-mono text-primary mt-3 hover:underline">GESTISCI →</button>
+              </div>
+            </div>
+
+            <div className="border border-border bg-card p-5">
+              <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-4">ULTIMI ORDINI</h3>
+              {orders.slice(0, 5).map((o) => (
+                <div key={o.id} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                  <span className="text-xs font-mono text-muted-foreground">{o.email || "N/A"}</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-mono font-bold text-foreground">€{Number(o.total).toFixed(2)}</span>
+                    <Badge className={`${statusColors[o.status]} text-[8px] tracking-wider font-mono rounded-none border-0`}>
+                      {o.status.toUpperCase()}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}
@@ -301,10 +460,7 @@ const Admin = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex items-center justify-between mb-6">
               <p className="text-muted-foreground text-xs font-mono tracking-[0.2em]">{products.length} PRODOTTI</p>
-              <Button
-                onClick={() => { resetForm(); setShowForm(true); }}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none gap-2"
-              >
+              <Button onClick={() => { resetForm(); setShowForm(true); }} className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none gap-2">
                 <Plus className="h-4 w-4" /> NUOVO PRODOTTO
               </Button>
             </div>
@@ -313,13 +469,13 @@ const Admin = () => {
               <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
             ) : (
               <div className="border border-border">
-                <div className="hidden md:grid grid-cols-[1fr_120px_80px_80px_80px_100px] gap-4 px-6 py-3 bg-secondary text-muted-foreground text-[10px] tracking-[0.2em] font-mono border-b border-border">
-                  <span>PRODOTTO</span><span>CATEGORIA</span><span>PREZZO</span><span>STOCK</span><span>STATO</span><span className="text-right">AZIONI</span>
+                <div className="hidden md:grid grid-cols-[1fr_100px_80px_60px_60px_40px_100px] gap-4 px-6 py-3 bg-secondary text-muted-foreground text-[10px] tracking-[0.2em] font-mono border-b border-border">
+                  <span>PRODOTTO</span><span>CATEGORIA</span><span>PREZZO</span><span>STOCK</span><span>STATO</span><span>★</span><span className="text-right">AZIONI</span>
                 </div>
                 {products.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground font-mono text-sm">Nessun prodotto. Crea il primo!</div>
+                  <div className="text-center py-12 text-muted-foreground font-mono text-sm">Nessun prodotto.</div>
                 ) : products.map((product) => (
-                  <div key={product.id} className="grid grid-cols-1 md:grid-cols-[1fr_120px_80px_80px_80px_100px] gap-4 px-6 py-4 border-b border-border items-center hover:bg-secondary/50 transition-colors">
+                  <div key={product.id} className="grid grid-cols-1 md:grid-cols-[1fr_100px_80px_60px_60px_40px_100px] gap-4 px-6 py-4 border-b border-border items-center hover:bg-secondary/50 transition-colors">
                     <div className="flex items-center gap-3">
                       {product.image_url && <img src={product.image_url} alt="" className="w-10 h-10 object-cover border border-border hidden sm:block" />}
                       <div>
@@ -331,12 +487,19 @@ const Admin = () => {
                     <span className="text-foreground font-mono text-sm font-bold">€{Number(product.price).toFixed(2)}</span>
                     <span className="text-muted-foreground font-mono text-sm">{product.stock}</span>
                     <span>
-                      <span className={`inline-block w-2 h-2 rounded-full mr-2 ${product.is_active ? "bg-primary" : "bg-destructive"}`} />
-                      <span className="text-[10px] font-mono tracking-wider text-muted-foreground">{product.is_active ? "ON" : "OFF"}</span>
+                      <span className={`inline-block w-2 h-2 rounded-full mr-1 ${product.is_active ? "bg-primary" : "bg-destructive"}`} />
+                      <span className="text-[10px] font-mono text-muted-foreground">{product.is_active ? "ON" : "OFF"}</span>
                     </span>
+                    <button
+                      onClick={() => toggleFeatured.mutate({ id: product.id, featured: !(product as any).is_featured })}
+                      className={`p-1 transition-colors ${(product as any).is_featured ? "text-yellow-400" : "text-muted-foreground hover:text-yellow-400"}`}
+                      title="In evidenza"
+                    >
+                      {(product as any).is_featured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
+                    </button>
                     <div className="flex justify-end gap-2">
                       <button onClick={() => startEdit(product)} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Pencil className="h-4 w-4" /></button>
-                      <button onClick={() => { if (confirm("Eliminare questo prodotto?")) deleteMutation.mutate(product.id); }} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="h-4 w-4" /></button>
+                      <button onClick={() => { if (confirm("Eliminare?")) deleteMutation.mutate(product.id); }} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="h-4 w-4" /></button>
                     </div>
                   </div>
                 ))}
@@ -349,7 +512,6 @@ const Admin = () => {
         {activeTab === "orders" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <p className="text-muted-foreground text-xs font-mono tracking-[0.2em] mb-6">{orders.length} ORDINI TOTALI</p>
-
             {ordersLoading ? (
               <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
             ) : orders.length === 0 ? (
@@ -369,19 +531,12 @@ const Admin = () => {
                           <p className="text-foreground text-sm font-mono">{order.email || "N/A"}</p>
                           <p className="text-muted-foreground text-[10px] font-mono">{order.phone || ""}</p>
                         </div>
-                        <span className="text-muted-foreground text-xs font-mono">
-                          {new Date(order.created_at).toLocaleDateString("it-IT")}
-                        </span>
+                        <span className="text-muted-foreground text-xs font-mono">{new Date(order.created_at).toLocaleDateString("it-IT")}</span>
                         <span className="text-foreground font-mono text-sm font-bold">€{Number(order.total).toFixed(2)}</span>
                         <div>
-                          <select
-                            value={order.status}
-                            onChange={(e) => updateOrderStatus.mutate({ id: order.id, status: e.target.value as OrderStatus })}
-                            className="bg-background border border-border text-foreground text-[10px] font-mono tracking-wider px-2 py-1.5 w-full focus:outline-none focus:border-primary"
-                          >
-                            {orderStatuses.map((s) => (
-                              <option key={s} value={s}>{s.toUpperCase()}</option>
-                            ))}
+                          <select value={order.status} onChange={(e) => updateOrderStatus.mutate({ id: order.id, status: e.target.value as OrderStatus })}
+                            className="bg-background border border-border text-foreground text-[10px] font-mono tracking-wider px-2 py-1.5 w-full focus:outline-none focus:border-primary">
+                            {orderStatuses.map((s) => <option key={s} value={s}>{s.toUpperCase()}</option>)}
                           </select>
                         </div>
                         <div className="flex justify-end">
@@ -392,36 +547,21 @@ const Admin = () => {
                       </div>
                       <AnimatePresence>
                         {isExpanded && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            className="overflow-hidden bg-secondary/30"
-                          >
+                          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden bg-secondary/30">
                             <div className="px-6 py-4 space-y-3">
                               <p className="text-[10px] font-mono tracking-[0.2em] text-muted-foreground">DETTAGLI ORDINE</p>
                               {order.shipping_address && (
-                                <p className="text-xs font-mono text-muted-foreground">
-                                  Indirizzo: {typeof order.shipping_address === "object" ? JSON.stringify(order.shipping_address) : String(order.shipping_address)}
-                                </p>
+                                <p className="text-xs font-mono text-muted-foreground">Indirizzo: {typeof order.shipping_address === "object" ? JSON.stringify(order.shipping_address) : String(order.shipping_address)}</p>
                               )}
                               {items.length > 0 ? items.map((item) => (
                                 <div key={item.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
                                   <div className="flex-1">
-                                    <p className="text-sm font-mono text-foreground">
-                                      {(item as any).products?.name || item.product_id}
-                                    </p>
-                                    <p className="text-[10px] font-mono text-muted-foreground">
-                                      {item.quantity}× €{Number(item.unit_price).toFixed(2)}
-                                    </p>
+                                    <p className="text-sm font-mono text-foreground">{(item as any).products?.name || item.product_id}</p>
+                                    <p className="text-[10px] font-mono text-muted-foreground">{item.quantity}× €{Number(item.unit_price).toFixed(2)}</p>
                                   </div>
-                                  <span className="text-sm font-mono font-bold text-foreground">
-                                    €{(item.quantity * Number(item.unit_price)).toFixed(2)}
-                                  </span>
+                                  <span className="text-sm font-mono font-bold text-foreground">€{(item.quantity * Number(item.unit_price)).toFixed(2)}</span>
                                 </div>
-                              )) : (
-                                <p className="text-xs font-mono text-muted-foreground">Nessun articolo trovato.</p>
-                              )}
+                              )) : <p className="text-xs font-mono text-muted-foreground">Nessun articolo trovato.</p>}
                             </div>
                           </motion.div>
                         )}
@@ -438,7 +578,6 @@ const Admin = () => {
         {activeTab === "customers" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <p className="text-muted-foreground text-xs font-mono tracking-[0.2em] mb-6">{profiles.length} CLIENTI REGISTRATI</p>
-
             {profilesLoading ? (
               <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
             ) : profiles.length === 0 ? (
@@ -458,9 +597,7 @@ const Admin = () => {
                         </div>
                         <span className="text-foreground text-sm font-mono">{profile.email || "N/A"}</span>
                       </div>
-                      <span className="text-muted-foreground text-xs font-mono">
-                        {new Date(profile.created_at).toLocaleDateString("it-IT")}
-                      </span>
+                      <span className="text-muted-foreground text-xs font-mono">{new Date(profile.created_at).toLocaleDateString("it-IT")}</span>
                       <span className="text-foreground font-mono text-sm font-bold">{customerOrders.length}</span>
                     </div>
                   );
@@ -470,19 +607,202 @@ const Admin = () => {
           </motion.div>
         )}
 
+        {/* ═══════════════ ECOMMERCE ═══════════════ */}
+        {activeTab === "ecommerce" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {/* Sub-tabs */}
+            <div className="flex gap-0 border border-border mb-6">
+              {([
+                { key: "featured" as const, label: "IN EVIDENZA", icon: <Star className="h-3.5 w-3.5" /> },
+                { key: "coupons" as const, label: "COUPON", icon: <Tag className="h-3.5 w-3.5" /> },
+                { key: "email" as const, label: "EMAIL CLIENTI", icon: <Mail className="h-3.5 w-3.5" /> },
+              ]).map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setEcommerceTab(tab.key)}
+                  className={`flex items-center gap-2 px-4 py-2.5 text-[10px] tracking-[0.15em] font-mono font-bold transition-all whitespace-nowrap ${
+                    ecommerceTab === tab.key
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {tab.icon} {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* ── FEATURED ── */}
+            {ecommerceTab === "featured" && (
+              <div className="space-y-6">
+                <div className="border border-border bg-card p-5">
+                  <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-2">PRODOTTI IN EVIDENZA</h3>
+                  <p className="text-muted-foreground text-[10px] font-mono tracking-wider mb-4">
+                    Seleziona i prodotti da mettere in evidenza nello shop. Clicca la stella ★ per aggiungere/rimuovere.
+                  </p>
+                </div>
+
+                {featuredProducts.length > 0 && (
+                  <div className="border border-primary/30 bg-primary/5 p-4">
+                    <p className="text-[10px] font-mono tracking-[0.2em] text-primary mb-3 font-bold">★ {featuredProducts.length} PRODOTTI IN EVIDENZA</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                      {featuredProducts.map((p) => (
+                        <div key={p.id} className="flex items-center gap-3 border border-border bg-card p-3">
+                          {p.image_url && <img src={p.image_url} alt="" className="w-12 h-12 object-cover border border-border" />}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-display font-semibold text-foreground truncate">{p.name}</p>
+                            <p className="text-xs font-mono text-muted-foreground">€{Number(p.price).toFixed(2)}</p>
+                          </div>
+                          <button onClick={() => toggleFeatured.mutate({ id: p.id, featured: false })} className="text-yellow-400 hover:text-muted-foreground transition-colors">
+                            <Star className="h-4 w-4 fill-current" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="border border-border">
+                  <div className="hidden md:grid grid-cols-[1fr_100px_80px_60px] gap-4 px-6 py-3 bg-secondary text-muted-foreground text-[10px] tracking-[0.2em] font-mono border-b border-border">
+                    <span>PRODOTTO</span><span>CATEGORIA</span><span>PREZZO</span><span>★</span>
+                  </div>
+                  {products.map((p) => (
+                    <div key={p.id} className="grid grid-cols-1 md:grid-cols-[1fr_100px_80px_60px] gap-4 px-6 py-3 border-b border-border items-center hover:bg-secondary/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        {p.image_url && <img src={p.image_url} alt="" className="w-8 h-8 object-cover border border-border hidden sm:block" />}
+                        <span className="text-foreground text-sm font-display font-semibold">{p.name}</span>
+                      </div>
+                      <span className="text-muted-foreground text-xs font-mono">{p.category.toUpperCase()}</span>
+                      <span className="text-foreground font-mono text-sm font-bold">€{Number(p.price).toFixed(2)}</span>
+                      <button
+                        onClick={() => toggleFeatured.mutate({ id: p.id, featured: !(p as any).is_featured })}
+                        className={`p-1 transition-colors ${(p as any).is_featured ? "text-yellow-400" : "text-muted-foreground hover:text-yellow-400"}`}
+                      >
+                        {(p as any).is_featured ? <Star className="h-4 w-4 fill-current" /> : <StarOff className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── COUPONS ── */}
+            {ecommerceTab === "coupons" && (
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-muted-foreground text-xs font-mono tracking-[0.2em]">{coupons.length} COUPON</p>
+                  <Button onClick={() => { resetCouponForm(); setShowCouponForm(true); }} className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none gap-2">
+                    <Plus className="h-4 w-4" /> NUOVO COUPON
+                  </Button>
+                </div>
+
+                {couponsLoading ? (
+                  <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+                ) : coupons.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground font-mono text-sm">Nessun coupon creato.</div>
+                ) : (
+                  <div className="border border-border">
+                    <div className="hidden md:grid grid-cols-[1fr_120px_100px_80px_80px_80px_100px] gap-4 px-6 py-3 bg-secondary text-muted-foreground text-[10px] tracking-[0.2em] font-mono border-b border-border">
+                      <span>CODICE</span><span>SCONTO</span><span>MIN. ORDINE</span><span>USI</span><span>SCADENZA</span><span>STATO</span><span className="text-right">AZIONI</span>
+                    </div>
+                    {coupons.map((coupon) => (
+                      <div key={coupon.id} className="grid grid-cols-1 md:grid-cols-[1fr_120px_100px_80px_80px_80px_100px] gap-4 px-6 py-4 border-b border-border items-center hover:bg-secondary/50 transition-colors">
+                        <div className="flex items-center gap-2">
+                          <code className="text-foreground text-sm font-mono font-bold bg-secondary px-2 py-1">{coupon.code}</code>
+                          <button onClick={() => copyCode(coupon.code)} className="text-muted-foreground hover:text-primary transition-colors">
+                            {copiedCode === coupon.code ? <Check className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+                          </button>
+                        </div>
+                        <span className="text-foreground font-mono text-sm font-bold flex items-center gap-1">
+                          {coupon.discount_type === "percentage" ? <Percent className="h-3 w-3" /> : <DollarSign className="h-3 w-3" />}
+                          {coupon.discount_type === "percentage" ? `${coupon.discount_value}%` : `€${Number(coupon.discount_value).toFixed(2)}`}
+                        </span>
+                        <span className="text-muted-foreground text-xs font-mono">€{Number(coupon.min_order).toFixed(2)}</span>
+                        <span className="text-muted-foreground text-xs font-mono">{coupon.used_count}{coupon.max_uses ? `/${coupon.max_uses}` : ""}</span>
+                        <span className="text-muted-foreground text-[10px] font-mono">
+                          {coupon.expires_at ? new Date(coupon.expires_at).toLocaleDateString("it-IT") : "—"}
+                        </span>
+                        <span>
+                          <span className={`inline-block w-2 h-2 rounded-full mr-1 ${coupon.is_active ? "bg-primary" : "bg-destructive"}`} />
+                          <span className="text-[10px] font-mono text-muted-foreground">{coupon.is_active ? "ON" : "OFF"}</span>
+                        </span>
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => startEditCoupon(coupon)} className="p-2 text-muted-foreground hover:text-primary transition-colors"><Pencil className="h-4 w-4" /></button>
+                          <button onClick={() => { if (confirm("Eliminare questo coupon?")) deleteCouponMutation.mutate(coupon.id); }} className="p-2 text-muted-foreground hover:text-destructive transition-colors"><Trash2 className="h-4 w-4" /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── EMAIL ── */}
+            {ecommerceTab === "email" && (
+              <div className="space-y-6">
+                <div className="border border-border bg-card p-5">
+                  <h3 className="text-xs tracking-[0.2em] font-mono font-bold text-foreground mb-2">INVIA EMAIL AI CLIENTI</h3>
+                  <p className="text-muted-foreground text-[10px] font-mono tracking-wider">
+                    Seleziona i destinatari, compila oggetto e messaggio, poi invia.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* Recipients */}
+                  <div className="border border-border bg-card p-5 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[10px] font-mono tracking-[0.2em] text-muted-foreground font-bold">DESTINATARI</h4>
+                      <button onClick={selectAllRecipients} className="text-[10px] font-mono tracking-wider text-primary hover:underline">
+                        {emailRecipients.length === profiles.filter(p => p.email).length ? "DESELEZIONA" : "SELEZIONA TUTTI"}
+                      </button>
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto space-y-2">
+                      {profiles.filter(p => p.email).map((p) => (
+                        <label key={p.id} className="flex items-center gap-3 py-1.5 px-2 hover:bg-secondary/50 cursor-pointer transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={emailRecipients.includes(p.email!)}
+                            onChange={() => toggleRecipient(p.email!)}
+                            className="accent-primary"
+                          />
+                          <span className="text-xs font-mono text-foreground truncate">{p.email}</span>
+                        </label>
+                      ))}
+                    </div>
+                    <p className="text-[10px] font-mono text-primary tracking-wider">{emailRecipients.length} selezionati</p>
+                  </div>
+
+                  {/* Compose */}
+                  <div className="lg:col-span-2 border border-border bg-card p-5 space-y-4">
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">OGGETTO *</label>
+                      <Input value={emailSubject} onChange={(e) => setEmailSubject(e.target.value)} className="bg-background border-border font-mono text-sm" placeholder="es. Nuovi arrivi nel nostro shop!" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">MESSAGGIO *</label>
+                      <Textarea value={emailBody} onChange={(e) => setEmailBody(e.target.value)} className="bg-background border-border font-mono text-sm min-h-[180px] resize-none" placeholder="Scrivi il tuo messaggio qui..." />
+                    </div>
+                    <Button onClick={handleSendEmail} disabled={sendingEmail || !emailSubject || !emailBody || emailRecipients.length === 0}
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none gap-2 w-full py-5">
+                      {sendingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      INVIA EMAIL ({emailRecipients.length})
+                    </Button>
+                    <p className="text-[10px] font-mono text-muted-foreground tracking-wider text-center">
+                      L'email verrà aperta nel tuo client di posta predefinito.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
+
         {/* ═══════════════ Product Form Modal ═══════════════ */}
         <AnimatePresence>
           {showForm && (
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
-              onClick={resetForm}
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-card border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8"
-                onClick={(e) => e.stopPropagation()}
-              >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={resetForm}>
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-card border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="font-display text-2xl font-bold text-foreground">{editingId ? "MODIFICA PRODOTTO" : "NUOVO PRODOTTO"}</h2>
                   <button onClick={resetForm} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
@@ -534,12 +854,21 @@ const Admin = () => {
                     </div>
                     {form.image_url && <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="bg-background border-border font-mono text-xs mt-2" placeholder="URL immagine" />}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <button type="button" onClick={() => setForm({ ...form, is_active: !form.is_active })}
-                      className={`w-10 h-5 rounded-full transition-colors relative ${form.is_active ? "bg-primary" : "bg-muted"}`}>
-                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${form.is_active ? "left-5" : "left-0.5"}`} />
-                    </button>
-                    <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">{form.is_active ? "ATTIVO" : "DISATTIVATO"}</span>
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => setForm({ ...form, is_active: !form.is_active })}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${form.is_active ? "bg-primary" : "bg-muted"}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${form.is_active ? "left-5" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">{form.is_active ? "ATTIVO" : "OFF"}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button type="button" onClick={() => setForm({ ...form, is_featured: !form.is_featured })}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${form.is_featured ? "bg-yellow-500" : "bg-muted"}`}>
+                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${form.is_featured ? "left-5" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">★ IN EVIDENZA</span>
+                    </div>
                   </div>
                   <div className="flex gap-3 pt-4">
                     <Button type="submit" disabled={saveMutation.isPending}
@@ -548,6 +877,76 @@ const Admin = () => {
                       {editingId ? "AGGIORNA" : "CREA PRODOTTO"}
                     </Button>
                     <Button type="button" variant="outline" onClick={resetForm} className="border-border font-mono text-xs tracking-[0.2em] rounded-none">ANNULLA</Button>
+                  </div>
+                </form>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ═══════════════ Coupon Form Modal ═══════════════ */}
+        <AnimatePresence>
+          {showCouponForm && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={resetCouponForm}>
+              <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }}
+                className="bg-card border border-border w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="font-display text-2xl font-bold text-foreground">{editingCouponId ? "MODIFICA COUPON" : "NUOVO COUPON"}</h2>
+                  <button onClick={resetCouponForm} className="text-muted-foreground hover:text-foreground"><X className="h-5 w-5" /></button>
+                </div>
+                <form onSubmit={(e) => { e.preventDefault(); saveCouponMutation.mutate(); }} className="space-y-4">
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">CODICE *</label>
+                    <Input value={couponForm.code} onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value.toUpperCase() })} className="bg-background border-border font-mono text-sm uppercase" placeholder="es. WELCOME20" required />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">TIPO SCONTO</label>
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setCouponForm({ ...couponForm, discount_type: "percentage" })}
+                          className={`flex-1 text-[10px] tracking-[0.15em] font-mono py-2 border transition-all flex items-center justify-center gap-1 ${couponForm.discount_type === "percentage" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                          <Percent className="h-3 w-3" /> %
+                        </button>
+                        <button type="button" onClick={() => setCouponForm({ ...couponForm, discount_type: "fixed" })}
+                          className={`flex-1 text-[10px] tracking-[0.15em] font-mono py-2 border transition-all flex items-center justify-center gap-1 ${couponForm.discount_type === "fixed" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground"}`}>
+                          € FISSO
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">VALORE *</label>
+                      <Input type="number" step="0.01" min="0" value={couponForm.discount_value} onChange={(e) => setCouponForm({ ...couponForm, discount_value: e.target.value })} className="bg-background border-border font-mono text-sm" required />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">ORDINE MINIMO (€)</label>
+                      <Input type="number" step="0.01" min="0" value={couponForm.min_order} onChange={(e) => setCouponForm({ ...couponForm, min_order: e.target.value })} className="bg-background border-border font-mono text-sm" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">MAX UTILIZZI</label>
+                      <Input type="number" min="1" value={couponForm.max_uses} onChange={(e) => setCouponForm({ ...couponForm, max_uses: e.target.value })} className="bg-background border-border font-mono text-sm" placeholder="Illimitati" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">DATA SCADENZA</label>
+                    <Input type="datetime-local" value={couponForm.expires_at} onChange={(e) => setCouponForm({ ...couponForm, expires_at: e.target.value })} className="bg-background border-border font-mono text-sm" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button type="button" onClick={() => setCouponForm({ ...couponForm, is_active: !couponForm.is_active })}
+                      className={`w-10 h-5 rounded-full transition-colors relative ${couponForm.is_active ? "bg-primary" : "bg-muted"}`}>
+                      <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${couponForm.is_active ? "left-5" : "left-0.5"}`} />
+                    </button>
+                    <span className="text-xs font-mono tracking-[0.2em] text-muted-foreground">{couponForm.is_active ? "ATTIVO" : "DISATTIVATO"}</span>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button type="submit" disabled={saveCouponMutation.isPending}
+                      className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 font-mono text-xs tracking-[0.2em] rounded-none py-5 gap-2">
+                      {saveCouponMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                      {editingCouponId ? "AGGIORNA" : "CREA COUPON"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={resetCouponForm} className="border-border font-mono text-xs tracking-[0.2em] rounded-none">ANNULLA</Button>
                   </div>
                 </form>
               </motion.div>
