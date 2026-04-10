@@ -289,6 +289,50 @@ const Admin = () => {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  // ─── Event Mutations ───
+  const saveEventMutation = useMutation({
+    mutationFn: async () => {
+      const payload: any = {
+        name: eventForm.name,
+        date_label: eventForm.date_label,
+        location: eventForm.location,
+        tag: eventForm.tag,
+        description: eventForm.description || "",
+        time_range: eventForm.time_range || "",
+        is_upcoming: eventForm.is_upcoming,
+        is_active: eventForm.is_active,
+        sort_order: parseInt(eventForm.sort_order) || 0,
+      };
+      if (editingEventId) {
+        const { error } = await supabase.from("events").update(payload).eq("id", editingEventId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("events").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      toast.success(editingEventId ? "Evento aggiornato!" : "Evento creato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      queryClient.invalidateQueries({ queryKey: ["public-events"] });
+      resetEventForm();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const deleteEventMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("events").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Evento eliminato!");
+      queryClient.invalidateQueries({ queryKey: ["admin-events"] });
+      queryClient.invalidateQueries({ queryKey: ["public-events"] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   // ─── Helpers ───
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
