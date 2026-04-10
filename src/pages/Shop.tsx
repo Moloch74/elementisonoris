@@ -50,6 +50,7 @@ type Product = {
   stock: number;
   badge: string | null;
   is_active: boolean;
+  is_featured: boolean;
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
