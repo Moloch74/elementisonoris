@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Filter, Loader2, X, Package, Truck } from "lucide-react";
+import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -50,6 +50,7 @@ type Product = {
   stock: number;
   badge: string | null;
   is_active: boolean;
+  is_featured: boolean;
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
@@ -83,6 +84,7 @@ const Shop = () => {
     },
   });
 
+  const featuredProducts = products.filter((p) => p.is_featured);
   const filtered =
     activeCategory === "tutti"
       ? products
@@ -152,6 +154,55 @@ const Shop = () => {
             </button>
           ))}
         </div>
+
+        {/* Featured Section */}
+        {!isLoading && featuredProducts.length > 0 && (
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <Star className="h-5 w-5 text-primary fill-primary" />
+              <h2 className="font-display text-2xl font-bold text-foreground tracking-wide">{t("shop.inEvidenza") || "IN EVIDENZA"}</h2>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product, i) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  className="group bg-card border-2 border-primary/30 overflow-hidden hover:border-primary transition-colors cursor-pointer relative"
+                  onClick={() => setSelectedProduct(product)}
+                >
+                  <div className="absolute top-3 right-3 z-10">
+                    <Star className="h-4 w-4 text-primary fill-primary" />
+                  </div>
+                  <div className="relative aspect-square overflow-hidden">
+                    <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    {product.badge && (
+                      <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
+                    )}
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <div>
+                      <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mb-1">{getCategoryLabel(product.category)}</p>
+                      <h3 className="text-sm font-display font-semibold text-foreground tracking-wide uppercase">{product.name}</h3>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-foreground font-mono text-lg font-bold">€{Number(product.price).toFixed(2)}</span>
+                      <Button
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); handleAddToCart(product.id); }}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 text-[10px] tracking-[0.15em] font-mono rounded-none px-4"
+                      >
+                        {t("shop.aggiungi")}
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {isLoading && (
           <div className="flex justify-center py-20">
