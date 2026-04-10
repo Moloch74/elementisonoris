@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2 } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Loader2, Tag, X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LangContext";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
 import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
