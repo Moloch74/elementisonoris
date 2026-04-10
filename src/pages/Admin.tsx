@@ -383,6 +383,20 @@ const Admin = () => {
 
   const resetCouponForm = () => { setCouponForm(emptyCouponForm); setEditingCouponId(null); setShowCouponForm(false); };
 
+  const startEditEvent = (event: typeof events[0]) => {
+    setEditingEventId(event.id);
+    setEventForm({
+      name: event.name, date_label: event.date_label,
+      location: event.location, tag: event.tag,
+      description: event.description || "", time_range: event.time_range || "",
+      is_upcoming: event.is_upcoming, is_active: event.is_active,
+      sort_order: String(event.sort_order),
+    });
+    setShowEventForm(true);
+  };
+
+  const resetEventForm = () => { setEventForm(emptyEventForm); setEditingEventId(null); setShowEventForm(false); };
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
