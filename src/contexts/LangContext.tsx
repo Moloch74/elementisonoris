@@ -219,6 +219,7 @@ const translations: Record<string, Record<Lang, string>> = {
   // Shop
   "shop.title": { it: "SHOP", en: "SHOP" },
   "shop.subtitle": { it: "VINILI · STREETWEAR · GADGETS — UNDERGROUND SELECTION", en: "VINYL · STREETWEAR · GADGETS — UNDERGROUND SELECTION" },
+  "shop.inEvidenza": { it: "IN EVIDENZA", en: "FEATURED" },
   "shop.tutti": { it: "TUTTI", en: "ALL" },
   "shop.dettagli": { it: "DETTAGLI", en: "DETAILS" },
   "shop.aggiungi": { it: "AGGIUNGI", en: "ADD" },
