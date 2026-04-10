@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, MapPin, Calendar, Users } from "lucide-react";
+import { ArrowRight, MapPin, Calendar, Users, Loader2 } from "lucide-react";
 import { useLang } from "@/contexts/LangContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import heroRave from "@/assets/hero-rave.jpg";
 import warehouseRave from "@/assets/warehouse-rave.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
@@ -14,25 +16,24 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
 
-const pastEvents = [
-  { date: "15 MAR", name: "DEEP HOUSE SELECTION", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
-  { date: "1 MAR", name: "TECHNO RESISTANCE", location: "Bunker — Lecce", tag: "RAVE" },
-  { date: "14 FEB", name: "LOVE IS A GROOVE", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
-  { date: "25 GEN", name: "WINTER WAREHOUSE", location: "Zona Industriale — Lecce", tag: "RAVE" },
-  { date: "31 DIC", name: "NYE ACID MARATHON", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
-  { date: "14 DIC", name: "ELECTRO XMAS", location: "Elementi Sonori — Lecce", tag: "IN-STORE" },
-];
-
 const Eventi = () => {
   const { t } = useLang();
 
-  const events = [
-    { date: "12 APR", name: "VINYL ONLY NIGHT", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: t("eventi.event1.desc"), time: "21:00 — 02:00" },
-    { date: "26 APR", name: "ACID TEKNO SESSION", location: "Warehouse District — Lecce", tag: "RAVE", desc: t("eventi.event2.desc"), time: "23:00 — 06:00" },
-    { date: "10 MAG", name: "DIGGING DAY", location: "Elementi Sonori — Lecce", tag: "IN-STORE", desc: t("eventi.event3.desc"), time: "11:00 — 21:00" },
-    { date: "24 MAG", name: "JUNGLE MASSIVE", location: "Ex Convento — Lecce", tag: "RAVE", desc: t("eventi.event4.desc"), time: "23:00 — 05:00" },
-    { date: "7 GIU", name: "SUMMER OPENING", location: "Location TBA", tag: "OPEN AIR", desc: t("eventi.event5.desc"), time: "TBA" },
-  ];
+  const { data: allEvents = [], isLoading } = useQuery({
+    queryKey: ["public-events"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const upcomingEvents = allEvents.filter((e) => e.is_upcoming);
+  const pastEvents = allEvents.filter((e) => !e.is_upcoming);
 
   const stats = [
     { icon: Calendar, value: "50+", label: t("eventi.eventiAnno") },
@@ -82,32 +83,38 @@ const Eventi = () => {
       {/* Upcoming Events */}
       <section className="py-24">
         <div className="container mx-auto px-4 md:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-            <motion.div className="lg:col-span-2 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <img src={dancefloor} alt="Evento" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1280} height={960} />
-              <img src={heroRave} alt="Rave" className="absolute -bottom-8 right-0 w-2/3 aspect-video object-cover border-4 border-background" loading="lazy" width={1920} height={1080} />
-            </motion.div>
-            <div className="lg:col-span-3">
-              <h2 className="font-display text-3xl font-bold mb-2">{t("eventi.prossimi")} <span className="text-neon">{t("eventi.title")}</span></h2>
-              <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono mb-8">2025 CALENDAR</p>
-              {events.map((event, i) => (
-                <motion.div key={i} className="border-b border-border py-6 group hover:bg-secondary/30 transition-colors px-4 -mx-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}>
-                  <div className="flex items-start gap-6">
-                    <span className="text-primary font-display text-2xl font-bold min-w-[80px]">{event.date}</span>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-display text-lg font-bold">{event.name}</h3>
-                        <span className="border border-primary text-primary text-[10px] tracking-[0.15em] px-3 py-1 font-mono shrink-0 ml-4">{event.tag}</span>
+          {isLoading ? (
+            <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+              <motion.div className="lg:col-span-2 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+                <img src={dancefloor} alt="Evento" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1280} height={960} />
+                <img src={heroRave} alt="Rave" className="absolute -bottom-8 right-0 w-2/3 aspect-video object-cover border-4 border-background" loading="lazy" width={1920} height={1080} />
+              </motion.div>
+              <div className="lg:col-span-3">
+                <h2 className="font-display text-3xl font-bold mb-2">{t("eventi.prossimi")} <span className="text-neon">{t("eventi.title")}</span></h2>
+                <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono mb-8">2025 CALENDAR</p>
+                {upcomingEvents.length === 0 ? (
+                  <p className="text-muted-foreground font-mono text-sm py-8">{t("eventi.nessunEvento") || "Nessun evento in programma."}</p>
+                ) : upcomingEvents.map((event, i) => (
+                  <motion.div key={event.id} className="border-b border-border py-6 group hover:bg-secondary/30 transition-colors px-4 -mx-4" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}>
+                    <div className="flex items-start gap-6">
+                      <span className="text-primary font-display text-2xl font-bold min-w-[80px]">{event.date_label}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-display text-lg font-bold">{event.name}</h3>
+                          <span className="border border-primary text-primary text-[10px] tracking-[0.15em] px-3 py-1 font-mono shrink-0 ml-4">{event.tag}</span>
+                        </div>
+                        <p className="text-muted-foreground text-xs font-mono mb-1">{event.location}</p>
+                        {event.time_range && <p className="text-primary/70 text-[10px] font-mono mb-2">{event.time_range}</p>}
+                        {event.description && <p className="text-muted-foreground text-xs font-mono leading-relaxed">{event.description}</p>}
                       </div>
-                      <p className="text-muted-foreground text-xs font-mono mb-1">{event.location}</p>
-                      <p className="text-primary/70 text-[10px] font-mono mb-2">{event.time}</p>
-                      <p className="text-muted-foreground text-xs font-mono leading-relaxed">{event.desc}</p>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -129,26 +136,28 @@ const Eventi = () => {
       </section>
 
       {/* Past events */}
-      <section className="py-24 border-t border-border">
-        <div className="container mx-auto px-4 md:px-8 max-w-3xl">
-          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-3xl font-bold mb-2 text-muted-foreground">{t("eventi.eventiPassati")}</h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.archivio")}</p>
-          </motion.div>
-          {pastEvents.map((event, i) => (
-            <motion.div key={i} className="border-b border-border/50 py-4 opacity-60 hover:opacity-100 transition-opacity" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <div className="flex items-center gap-6">
-                <span className="text-muted-foreground font-display text-lg font-bold min-w-[80px]">{event.date}</span>
-                <div className="flex-1">
-                  <h3 className="font-display text-sm font-bold">{event.name}</h3>
-                  <p className="text-muted-foreground text-xs font-mono">{event.location}</p>
-                </div>
-                <span className="border border-border text-muted-foreground text-[10px] tracking-[0.15em] px-3 py-1 font-mono">{event.tag}</span>
-              </div>
+      {pastEvents.length > 0 && (
+        <section className="py-24 border-t border-border">
+          <div className="container mx-auto px-4 md:px-8 max-w-3xl">
+            <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+              <h2 className="font-display text-3xl font-bold mb-2 text-muted-foreground">{t("eventi.eventiPassati")}</h2>
+              <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.archivio")}</p>
             </motion.div>
-          ))}
-        </div>
-      </section>
+            {pastEvents.map((event, i) => (
+              <motion.div key={event.id} className="border-b border-border/50 py-4 opacity-60 hover:opacity-100 transition-opacity" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+                <div className="flex items-center gap-6">
+                  <span className="text-muted-foreground font-display text-lg font-bold min-w-[80px]">{event.date_label}</span>
+                  <div className="flex-1">
+                    <h3 className="font-display text-sm font-bold">{event.name}</h3>
+                    <p className="text-muted-foreground text-xs font-mono">{event.location}</p>
+                  </div>
+                  <span className="border border-border text-muted-foreground text-[10px] tracking-[0.15em] px-3 py-1 font-mono">{event.tag}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="py-24 border-t border-border">
