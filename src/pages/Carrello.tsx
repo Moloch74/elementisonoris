@@ -84,6 +84,60 @@ const Carrello = () => {
     return sum + Number(item.product.price) * item.quantity;
   }, 0);
 
+  const discount = appliedCoupon
+    ? appliedCoupon.discount_type === "percentage"
+      ? total * (appliedCoupon.discount_value / 100)
+      : Math.min(appliedCoupon.discount_value, total)
+    : 0;
+
+  const finalTotal = Math.max(0, total - discount);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidating(true);
+    try {
+      const { data, error } = await supabase
+        .from("coupons")
+        .select("*")
+        .eq("code", couponCode.toUpperCase().trim())
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) {
+        toast.error(t("cart.couponInvalido") || "Coupon non valido");
+        return;
+      }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        toast.error(t("cart.couponScaduto") || "Coupon scaduto");
+        return;
+      }
+      if (data.max_uses && data.used_count >= data.max_uses) {
+        toast.error(t("cart.couponEsaurito") || "Coupon esaurito");
+        return;
+      }
+      if (total < Number(data.min_order)) {
+        toast.error(`${t("cart.couponMinimo") || "Ordine minimo"}: €${Number(data.min_order).toFixed(2)}`);
+        return;
+      }
+      setAppliedCoupon({
+        code: data.code,
+        discount_type: data.discount_type,
+        discount_value: Number(data.discount_value),
+        min_order: Number(data.min_order),
+      });
+      toast.success(`${t("cart.couponApplicato") || "Coupon applicato"}: ${data.code}`);
+    } catch {
+      toast.error(t("cart.couponErrore") || "Errore nella validazione del coupon");
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-background pt-20 flex items-center justify-center">
