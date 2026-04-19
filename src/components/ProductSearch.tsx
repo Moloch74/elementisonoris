@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Loader2, Disc3, X } from "lucide-react";
+import { Search, Loader2, Disc3, X, Clock, Trash2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/contexts/LangContext";
@@ -19,12 +19,31 @@ type Props = {
   onNavigate?: () => void;
 };
 
+const STORAGE_KEY = "es:recent-searches";
+const MAX_RECENT = 6;
+
+const loadRecent = (): string[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((x) => typeof x === "string").slice(0, MAX_RECENT) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveRecent = (list: string[]) => {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list.slice(0, MAX_RECENT))); } catch { /* ignore */ }
+};
+
 const ProductSearch = ({ variant = "desktop", onNavigate }: Props) => {
   const { t } = useLang();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
+  const [recent, setRecent] = useState<string[]>(() => loadRecent());
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Debounce 200ms
@@ -59,7 +78,27 @@ const ProductSearch = ({ variant = "desktop", onNavigate }: Props) => {
     staleTime: 30_000,
   });
 
-  const goTo = (id: string) => {
+  const pushRecent = (term: string) => {
+    const t = term.trim();
+    if (!t) return;
+    const next = [t, ...recent.filter((r) => r.toLowerCase() !== t.toLowerCase())].slice(0, MAX_RECENT);
+    setRecent(next);
+    saveRecent(next);
+  };
+
+  const removeRecent = (term: string) => {
+    const next = recent.filter((r) => r !== term);
+    setRecent(next);
+    saveRecent(next);
+  };
+
+  const clearRecent = () => {
+    setRecent([]);
+    saveRecent([]);
+  };
+
+  const goTo = (id: string, term?: string) => {
+    if (term) pushRecent(term);
     setOpen(false);
     setQ("");
     onNavigate?.();
@@ -69,12 +108,22 @@ const ProductSearch = ({ variant = "desktop", onNavigate }: Props) => {
   const submitAll = (e: React.FormEvent) => {
     e.preventDefault();
     if (!debounced) return;
+    pushRecent(debounced);
     setOpen(false);
     onNavigate?.();
     navigate(`/shop?q=${encodeURIComponent(debounced)}`);
   };
 
-  const showDropdown = open && debounced.length >= 2;
+  const runRecent = (term: string) => {
+    pushRecent(term);
+    setQ(term);
+    setOpen(false);
+    onNavigate?.();
+    navigate(`/shop?q=${encodeURIComponent(term)}`);
+  };
+
+  const showResults = open && debounced.length >= 2;
+  const showRecent = open && debounced.length < 2 && recent.length > 0;
 
   const wrapperCls = variant === "desktop"
     ? "hidden lg:flex relative flex-1 max-w-xs mx-6"
@@ -93,14 +142,54 @@ const ProductSearch = ({ variant = "desktop", onNavigate }: Props) => {
           className="bg-transparent border-0 outline-none px-2 py-1.5 text-[11px] tracking-wider font-mono text-foreground placeholder:text-muted-foreground w-full"
         />
         {q && (
-          <button type="button" onClick={() => { setQ(""); setOpen(false); }} className="text-muted-foreground hover:text-foreground shrink-0" aria-label="Pulisci ricerca">
+          <button type="button" onClick={() => { setQ(""); setOpen(true); }} className="text-muted-foreground hover:text-foreground shrink-0" aria-label="Pulisci ricerca">
             <X className="h-3.5 w-3.5" />
           </button>
         )}
         {isFetching && <Loader2 className="h-3.5 w-3.5 text-muted-foreground animate-spin shrink-0 ml-1" />}
       </form>
 
-      {showDropdown && (
+      {/* Recent searches */}
+      {showRecent && (
+        <div className="absolute left-0 right-0 top-full mt-1 bg-background border border-border shadow-lg max-h-[70vh] overflow-y-auto z-50">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+            <span className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground flex items-center gap-1.5">
+              <Clock className="h-3 w-3" /> {t("search.recent") || "RICERCHE RECENTI"}
+            </span>
+            <button
+              type="button"
+              onClick={clearRecent}
+              className="text-[9px] tracking-[0.2em] font-mono text-muted-foreground hover:text-primary flex items-center gap-1"
+              aria-label="Cancella tutte"
+            >
+              <Trash2 className="h-3 w-3" /> {t("search.clearAll") || "CANCELLA TUTTE"}
+            </button>
+          </div>
+          {recent.map((term) => (
+            <div key={term} className="flex items-center border-b border-border last:border-b-0 hover:bg-secondary/60 transition-colors group">
+              <button
+                type="button"
+                onClick={() => runRecent(term)}
+                className="flex-1 flex items-center gap-2 px-3 py-2 text-left"
+              >
+                <Clock className="h-3 w-3 text-muted-foreground shrink-0" />
+                <span className="text-xs font-mono text-foreground truncate">{term}</span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); removeRecent(term); }}
+                className="px-2.5 py-2 text-muted-foreground hover:text-destructive opacity-60 group-hover:opacity-100 transition-opacity"
+                aria-label={`Rimuovi "${term}"`}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Live results */}
+      {showResults && (
         <div className="absolute left-0 right-0 top-full mt-1 bg-background border border-border shadow-lg max-h-[70vh] overflow-y-auto z-50">
           {hits.length === 0 && !isFetching && (
             <div className="px-3 py-6 text-center">
@@ -113,7 +202,7 @@ const ProductSearch = ({ variant = "desktop", onNavigate }: Props) => {
             <button
               key={h.id}
               type="button"
-              onClick={() => goTo(h.id)}
+              onClick={() => goTo(h.id, debounced)}
               className="w-full flex items-center gap-3 px-3 py-2 border-b border-border last:border-b-0 hover:bg-secondary/60 transition-colors text-left"
             >
               <div className="w-10 h-10 shrink-0 bg-secondary border border-border overflow-hidden flex items-center justify-center">

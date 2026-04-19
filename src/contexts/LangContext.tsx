@@ -20,6 +20,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "nav.cercaVinili": { it: "CERCA VINILI...", en: "SEARCH VINYL..." },
   "search.noResults": { it: "NESSUN RISULTATO", en: "NO RESULTS" },
   "search.viewAll": { it: "VEDI TUTTI I RISULTATI", en: "VIEW ALL RESULTS" },
+  "search.recent": { it: "RICERCHE RECENTI", en: "RECENT SEARCHES" },
+  "search.clearAll": { it: "CANCELLA TUTTE", en: "CLEAR ALL" },
 
   // Index - Storia & Team
   "index.storiaTitle": { it: "LA NOSTRA STORIA IN", en: "OUR STORY IN" },
