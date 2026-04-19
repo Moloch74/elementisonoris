@@ -22,7 +22,7 @@ const Footer = () => {
             <h4 className="text-primary text-xs tracking-[0.2em] mb-4 font-mono">{t("footer.navigazione")}</h4>
             <div className="flex flex-col gap-2">
               <Link to="/chi-siamo" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.chiSiamo")}</Link>
-              <Link to="/marketplace" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.catalogo")}</Link>
+              <Link to="/catalogo" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.catalogo")}</Link>
               <Link to="/shop" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.shop")}</Link>
               <Link to="/eventi" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.eventi")}</Link>
               <Link to="/contatti" className="text-muted-foreground text-xs tracking-wider hover:text-foreground transition-colors">{t("nav.contatti")}</Link>
