@@ -154,7 +154,54 @@ const Index = () => {
         <FloatingSticker className="absolute top-10 left-5 hidden xl:block" size={80} />
       </section>
 
-      {/* Gallery Grid */}
+      {/* Manifesto / Perché Elementi Sonori */}
+      <section className="py-24 border-t border-border relative bg-background/70">
+        <div className="container mx-auto px-4 md:px-8 max-w-5xl">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">[ {t("index.manifesto.tag")} ]</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold leading-tight">
+              {t("index.manifesto.title1")} <span className="text-neon">{t("index.manifesto.title2")}</span>
+            </h2>
+          </motion.div>
+          <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-10 text-sm font-mono leading-relaxed text-muted-foreground" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <p>{t("index.manifesto.p1")}</p>
+            <p>{t("index.manifesto.p2")}</p>
+            <p>{t("index.manifesto.p3")}</p>
+            <p>{t("index.manifesto.p4")}</p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Cosa offriamo — 4 pillars */}
+      <section className="py-24 border-t border-border relative">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-4">{t("index.pillars.title")}</h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("index.pillars.subtitle")}</p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-px bg-border">
+            {[
+              { num: "01", title: t("index.pillars.p1.title"), desc: t("index.pillars.p1.desc") },
+              { num: "02", title: t("index.pillars.p2.title"), desc: t("index.pillars.p2.desc") },
+              { num: "03", title: t("index.pillars.p3.title"), desc: t("index.pillars.p3.desc") },
+              { num: "04", title: t("index.pillars.p4.title"), desc: t("index.pillars.p4.desc") },
+            ].map((p, i) => (
+              <motion.div
+                key={p.num}
+                className="bg-background p-8 hover:bg-secondary/40 transition-colors"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <span className="text-primary text-[10px] tracking-[0.3em] font-mono">[{p.num}]</span>
+                <h3 className="font-display text-2xl font-bold mt-4 mb-3">{p.title}</h3>
+                <p className="text-muted-foreground text-sm font-mono leading-relaxed">{p.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
       <section className="py-24 relative">
         <div className="container mx-auto px-4 md:px-8">
           <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
