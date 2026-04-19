@@ -162,7 +162,7 @@ const ChiSiamo = () => {
               <Link to="/contatti" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-2 justify-center">
                 {t("nav.contatti")} <ArrowRight size={14} />
               </Link>
-              <Link to="/marketplace" className="border border-foreground/30 text-foreground px-10 py-3 text-xs tracking-[0.2em] font-mono hover:border-foreground transition-all duration-300 inline-flex items-center gap-2 justify-center">
+              <Link to="/catalogo" className="border border-foreground/30 text-foreground px-10 py-3 text-xs tracking-[0.2em] font-mono hover:border-foreground transition-all duration-300 inline-flex items-center gap-2 justify-center">
                 {t("nav.catalogo")} <ArrowRight size={14} />
               </Link>
             </div>
