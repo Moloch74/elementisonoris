@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowUpRight, Disc3, ExternalLink, Store, Search, X,
-  SlidersHorizontal, Loader2, ArrowDownAZ, ArrowUpAZ, ArrowDown01, ArrowUp10, Sparkles, Tag,
+  ArrowUpRight, Disc3, ExternalLink, Store, Search, Tag, Loader2, Music2, Sparkles, X,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +11,7 @@ import djVinyl from "@/assets/dj-vinyl.jpg";
 import vinylCrates from "@/assets/vinyl-crates.jpg";
 import FloatingSticker from "@/components/FloatingSticker";
 import MarqueeStrip from "@/components/MarqueeStrip";
+import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
 
 const DISCOGS_BASE = "https://www.discogs.com/seller/Elementisonori_Shop/profile";
 
@@ -28,37 +28,87 @@ type Vinyl = {
   created_at: string;
 };
 
-type SortKey = "newest" | "az" | "za" | "price-asc" | "price-desc" | "featured";
-
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
 
+// ─── SEO helper (no extra deps) ───
+const useSeo = (opts: {
+  title: string; description: string; canonical: string; jsonLd?: object;
+}) => {
+  useEffect(() => {
+    const prevTitle = document.title;
+    document.title = opts.title;
+
+    const setMeta = (name: string, content: string, attr: "name" | "property" = "name") => {
+      let el = document.head.querySelector<HTMLMetaElement>(`meta[${attr}="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+      return el;
+    };
+
+    const desc = setMeta("description", opts.description);
+    const ogTitle = setMeta("og:title", opts.title, "property");
+    const ogDesc = setMeta("og:description", opts.description, "property");
+    const twTitle = setMeta("twitter:title", opts.title);
+    const twDesc = setMeta("twitter:description", opts.description);
+
+    let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const created = !canonical;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.rel = "canonical";
+      document.head.appendChild(canonical);
+    }
+    canonical.href = opts.canonical;
+
+    let ld: HTMLScriptElement | null = null;
+    if (opts.jsonLd) {
+      ld = document.createElement("script");
+      ld.type = "application/ld+json";
+      ld.text = JSON.stringify(opts.jsonLd);
+      ld.dataset.seo = "catalogo";
+      document.head.appendChild(ld);
+    }
+
+    return () => {
+      document.title = prevTitle;
+      if (created && canonical?.parentNode) canonical.parentNode.removeChild(canonical);
+      if (ld?.parentNode) ld.parentNode.removeChild(ld);
+      // leave meta tags in place (harmless)
+      void desc; void ogTitle; void ogDesc; void twTitle; void twDesc;
+    };
+  }, [opts.title, opts.description, opts.canonical, JSON.stringify(opts.jsonLd ?? {})]);
+};
+
 const Catalogo = () => {
   const { t } = useLang();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  // ─── State ───
-  const [q, setQ] = useState("");
-  const [debounced, setDebounced] = useState("");
-  const [genre, setGenre] = useState<string>("ALL");
-  const [sort, setSort] = useState<SortKey>("newest");
-  const [advancedOpen, setAdvancedOpen] = useState(false);
-  const [minPrice, setMinPrice] = useState<string>("");
-  const [maxPrice, setMaxPrice] = useState<string>("");
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [featuredOnly, setFeaturedOnly] = useState(false);
-  const [withImageOnly, setWithImageOnly] = useState(false);
+  const [filters, setFilters] = useState<MarketplaceFiltersValue>(() => ({
+    ...defaultFilters,
+    q: searchParams.get("q") || "",
+    genre: (searchParams.get("g") || "ALL").toUpperCase(),
+  }));
 
+  // Sync URL ←→ filters (only q & g for shareable links)
   useEffect(() => {
-    const id = window.setTimeout(() => setDebounced(q.trim().toLowerCase()), 200);
-    return () => window.clearTimeout(id);
-  }, [q]);
+    const next = new URLSearchParams(searchParams);
+    if (filters.q) next.set("q", filters.q); else next.delete("q");
+    if (filters.genre !== "ALL") next.set("g", filters.genre); else next.delete("g");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.q, filters.genre]);
 
-  // ─── Fetch all active vinyls (single query, client-side filter for snappy UX) ───
+  // ─── Fetch vinyls (queryKey aligned with Admin invalidation) ───
   const { data: vinyls = [], isLoading } = useQuery({
-    queryKey: ["catalogo-vinyls"],
+    queryKey: ["products", "catalogo-vinili"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
@@ -70,10 +120,13 @@ const Catalogo = () => {
       if (error) throw error;
       return (data || []) as Vinyl[];
     },
-    staleTime: 60_000,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
   });
 
-  // ─── Genres auto-discovered from DB ───
+  // Listen for any "products" invalidation from admin and stay fresh
+  // (queryKey starts with "products" so refetches happen automatically via React Query)
+
   const genres = useMemo(() => {
     const map = new Map<string, number>();
     vinyls.forEach((v) => {
@@ -85,39 +138,17 @@ const Catalogo = () => {
       .map(([name, count]) => ({ name, count }));
   }, [vinyls]);
 
-  // ─── Filtered & sorted ───
-  const filtered = useMemo(() => {
-    let list = vinyls.slice();
-    if (debounced.length >= 1) {
-      list = list.filter((v) => {
-        const hay = `${v.name} ${v.description || ""} ${v.genre || ""} ${v.badge || ""}`.toLowerCase();
-        return hay.includes(debounced);
-      });
-    }
-    if (genre !== "ALL") list = list.filter((v) => (v.genre || "").trim().toUpperCase() === genre);
-    if (inStockOnly) list = list.filter((v) => v.stock > 0);
-    if (featuredOnly) list = list.filter((v) => v.is_featured);
-    if (withImageOnly) list = list.filter((v) => !!v.image_url);
-    const min = parseFloat(minPrice);
-    const max = parseFloat(maxPrice);
-    if (!isNaN(min)) list = list.filter((v) => Number(v.price) >= min);
-    if (!isNaN(max)) list = list.filter((v) => Number(v.price) <= max);
-    switch (sort) {
-      case "az": list.sort((a, b) => a.name.localeCompare(b.name)); break;
-      case "za": list.sort((a, b) => b.name.localeCompare(a.name)); break;
-      case "price-asc": list.sort((a, b) => Number(a.price) - Number(b.price)); break;
-      case "price-desc": list.sort((a, b) => Number(b.price) - Number(a.price)); break;
-      case "featured": list.sort((a, b) => Number(b.is_featured) - Number(a.is_featured)); break;
-      default: break; // newest already from query
-    }
-    return list;
-  }, [vinyls, debounced, genre, sort, minPrice, maxPrice, inStockOnly, featuredOnly, withImageOnly]);
+  const featured = useMemo(
+    () => vinyls.filter((v) => v.is_featured && v.image_url).slice(0, 5),
+    [vinyls]
+  );
 
-  // ─── Related: by selected genre, otherwise featured ───
+  const filtered = useMemo(() => applyFilters(vinyls, filters), [vinyls, filters]);
+
   const related = useMemo(() => {
     let pool = vinyls.filter((v) => !filtered.find((f) => f.id === v.id));
-    if (genre !== "ALL") {
-      pool = pool.filter((v) => (v.genre || "").trim().toUpperCase() === genre);
+    if (filters.genre !== "ALL") {
+      pool = pool.filter((v) => (v.genre || "").trim().toUpperCase() === filters.genre);
     } else {
       pool = pool.filter((v) => v.is_featured);
     }
@@ -126,179 +157,184 @@ const Catalogo = () => {
       pool = pool.concat(extra);
     }
     return pool.slice(0, 8);
-  }, [vinyls, filtered, genre]);
-
-  const resetAll = () => {
-    setQ(""); setGenre("ALL"); setSort("newest");
-    setMinPrice(""); setMaxPrice("");
-    setInStockOnly(false); setFeaturedOnly(false); setWithImageOnly(false);
-  };
-
-  const activeFiltersCount =
-    (debounced ? 1 : 0) + (genre !== "ALL" ? 1 : 0) + (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) +
-    (inStockOnly ? 1 : 0) + (featuredOnly ? 1 : 0) + (withImageOnly ? 1 : 0);
+  }, [vinyls, filtered, filters.genre]);
 
   const goProduct = (id: string) => navigate(`/shop?p=${id}`);
 
+  // ─── SEO ───
+  const seoTitle = filters.genre !== "ALL"
+    ? `Vinili ${filters.genre} — Catalogo Elementi Sonori Lecce`
+    : "Catalogo Vinili Underground — Elementi Sonori Lecce";
+  const seoDesc = filters.genre !== "ALL"
+    ? `Sfoglia i nostri vinili ${filters.genre.toLowerCase()}: ${genres.find((g) => g.name === filters.genre)?.count ?? 0} dischi disponibili nello shop di Lecce di Elementi Sonori.`
+    : `Catalogo completo di ${vinyls.length} vinili underground — techno, acid, hardcore, freetekno e oltre. Spedizioni dall'Italia, ritiro in negozio a Lecce.`;
+  const canonical = typeof window !== "undefined"
+    ? `${window.location.origin}/catalogo${filters.genre !== "ALL" ? `?g=${encodeURIComponent(filters.genre)}` : ""}`
+    : "https://elementisonori.lovable.app/catalogo";
+
+  useSeo({
+    title: seoTitle,
+    description: seoDesc,
+    canonical,
+    jsonLd: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": seoTitle,
+      "description": seoDesc,
+      "url": canonical,
+      "numberOfItems": filtered.length,
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Elementi Sonori",
+        "url": typeof window !== "undefined" ? window.location.origin : "https://elementisonori.lovable.app",
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": filtered.length,
+        "itemListElement": filtered.slice(0, 20).map((v, i) => ({
+          "@type": "ListItem",
+          "position": i + 1,
+          "url": typeof window !== "undefined" ? `${window.location.origin}/shop?p=${v.id}` : undefined,
+          "name": v.name,
+        })),
+      },
+    },
+  });
+
   return (
     <div className="pt-16 relative">
-      {/* Hero */}
-      <section className="relative py-20 md:py-28 overflow-hidden">
+      {/* ─── Immersive Hero ─── */}
+      <section className="relative min-h-[70vh] flex items-center overflow-hidden border-b border-border">
+        {/* Background: vinyl photo + featured grid collage */}
         <div className="absolute inset-0">
-          <img src={djVinyl} alt="" className="w-full h-full object-cover opacity-15" loading="lazy" width={1280} height={960} />
-          <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
+          <img src={djVinyl} alt="" className="w-full h-full object-cover opacity-25" loading="eager" width={1920} height={1080} />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background" />
         </div>
-        <div className="container mx-auto px-4 md:px-8 relative z-10 text-center">
+
+        {/* Featured covers floating in background */}
+        {featured.length > 0 && (
+          <div className="absolute inset-0 grid grid-cols-5 gap-2 p-4 opacity-20 pointer-events-none">
+            {featured.slice(0, 5).map((v, i) => (
+              <motion.div
+                key={v.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.1, duration: 0.8 }}
+                className={`hidden md:block aspect-square overflow-hidden border border-border ${i % 2 === 0 ? "translate-y-12" : "-translate-y-6"}`}
+              >
+                <img src={v.image_url!} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" loading="lazy" />
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        <div className="container mx-auto px-4 md:px-8 relative z-10 text-center py-20">
           <motion.p className="text-primary text-xs tracking-[0.4em] font-mono mb-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {t("catalogo.heroSubtitle") || "MARKETPLACE UNDERGROUND"}
+            UNDERGROUND VINYL CATALOG
           </motion.p>
-          <motion.h1 className="font-display text-6xl md:text-8xl font-bold" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            {t("catalogo.title") || "CATALOGO"}
+          <motion.h1
+            className="font-display text-6xl md:text-8xl lg:text-9xl font-bold leading-none mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            CATALOGO
           </motion.h1>
-          <motion.p className="text-muted-foreground text-xs tracking-[0.3em] font-mono mt-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
-            {vinyls.length} VINILI · {genres.length} GENERI
+          <motion.p
+            className="text-foreground/80 text-base md:text-lg font-mono max-w-2xl mx-auto mb-8 leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Techno, acid, hardcore, freetekno. Vinili selezionati a mano nel nostro shop di Lecce.
+            Sfoglia, ascolta l'anteprima e ordina online.
           </motion.p>
+
+          {/* Live stats */}
+          <motion.div
+            className="flex justify-center gap-px bg-border max-w-xl mx-auto mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+              <p className="font-display text-2xl md:text-3xl font-bold text-primary">{vinyls.length}</p>
+              <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">VINILI</p>
+            </div>
+            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+              <p className="font-display text-2xl md:text-3xl font-bold text-primary">{genres.length}</p>
+              <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">GENERI</p>
+            </div>
+            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+              <p className="font-display text-2xl md:text-3xl font-bold text-primary">{vinyls.filter((v) => v.is_featured).length}</p>
+              <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">IN EVIDENZA</p>
+            </div>
+          </motion.div>
+
+          <motion.a
+            href="#griglia"
+            className="inline-flex items-center gap-2 text-[10px] tracking-[0.4em] font-mono text-primary border-b border-primary/40 hover:border-primary pb-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            ESPLORA IL CATALOGO ↓
+          </motion.a>
         </div>
+
         <FloatingSticker className="absolute top-10 right-10 hidden lg:block" size={100} spin />
       </section>
 
       <MarqueeStrip />
 
-      {/* ─── Marketplace toolbar ─── */}
-      <section className="sticky top-16 z-30 bg-background/95 backdrop-blur border-b border-border">
-        <div className="container mx-auto px-4 md:px-8 py-4 space-y-3">
-          {/* Search bar */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 flex items-center border border-border focus-within:border-primary transition-colors px-3 bg-background">
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-              <input
-                type="text"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="CERCA PER ARTISTA, TITOLO, ETICHETTA, GENERE..."
-                className="bg-transparent border-0 outline-none px-3 py-2.5 text-xs tracking-wider font-mono text-foreground placeholder:text-muted-foreground w-full uppercase"
-              />
-              {q && (
-                <button type="button" onClick={() => setQ("")} className="text-muted-foreground hover:text-foreground" aria-label="Pulisci">
-                  <X className="h-4 w-4" />
+      {/* ─── Featured strip ─── */}
+      {featured.length > 0 && (
+        <section className="py-10 border-b border-border bg-secondary/20">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display text-xl md:text-2xl font-bold flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" /> IN EVIDENZA
+              </h2>
+              <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">SCELTI DA NOI</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-px bg-border">
+              {featured.map((v) => (
+                <button
+                  key={v.id}
+                  onClick={() => goProduct(v.id)}
+                  className="bg-background group relative overflow-hidden text-left"
+                >
+                  <div className="aspect-square overflow-hidden">
+                    <img
+                      src={v.image_url!}
+                      alt={`${v.name} — vinile ${v.genre || ""}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent opacity-90 group-hover:opacity-100" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <p className="font-display text-sm font-bold uppercase truncate">{v.name}</p>
+                    <div className="flex justify-between items-end mt-1">
+                      <span className="text-[9px] tracking-[0.2em] font-mono text-muted-foreground uppercase truncate">{v.genre || "—"}</span>
+                      <span className="text-sm font-mono font-bold text-primary">€{Number(v.price).toFixed(2)}</span>
+                    </div>
+                  </div>
                 </button>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={() => setAdvancedOpen((v) => !v)}
-              className={`flex items-center gap-2 px-3 py-2.5 border text-[10px] tracking-[0.2em] font-mono transition-colors ${
-                advancedOpen || activeFiltersCount > 0
-                  ? "border-primary text-primary bg-primary/5"
-                  : "border-border text-muted-foreground hover:text-foreground hover:border-foreground"
-              }`}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">RICERCA AVANZATA</span>
-              {activeFiltersCount > 0 && (
-                <span className="bg-primary text-primary-foreground text-[9px] px-1.5 py-0.5 font-bold">{activeFiltersCount}</span>
-              )}
-            </button>
-          </div>
-
-          {/* Genre chips (auto-discovered) + Sort */}
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setGenre("ALL")}
-              className={`text-[10px] tracking-[0.15em] font-mono px-3 py-1.5 border transition-all ${
-                genre === "ALL" ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-              }`}
-            >
-              TUTTI ({vinyls.length})
-            </button>
-            {genres.map((g) => (
-              <button
-                key={g.name}
-                onClick={() => setGenre(g.name)}
-                className={`text-[10px] tracking-[0.15em] font-mono px-3 py-1.5 border transition-all ${
-                  genre === g.name ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
-                }`}
-              >
-                {g.name} ({g.count})
-              </button>
-            ))}
-            {genres.length === 0 && !isLoading && (
-              <span className="text-[10px] font-mono text-muted-foreground italic">
-                Nessun genere ancora — aggiungi il campo "GENERE" ai vinili dal pannello admin.
-              </span>
-            )}
-
-            <div className="ml-auto flex items-center gap-2">
-              <span className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground hidden md:inline">ORDINA</span>
-              <div className="flex border border-border">
-                {([
-                  { k: "newest" as SortKey, icon: Sparkles, label: "NUOVI" },
-                  { k: "az" as SortKey, icon: ArrowDownAZ, label: "A-Z" },
-                  { k: "za" as SortKey, icon: ArrowUpAZ, label: "Z-A" },
-                  { k: "price-asc" as SortKey, icon: ArrowDown01, label: "€↑" },
-                  { k: "price-desc" as SortKey, icon: ArrowUp10, label: "€↓" },
-                ]).map(({ k, icon: Icon, label }) => (
-                  <button
-                    key={k}
-                    onClick={() => setSort(k)}
-                    title={label}
-                    className={`flex items-center gap-1 px-2 py-1.5 text-[9px] tracking-wider font-mono border-r border-border last:border-r-0 transition-colors ${
-                      sort === k ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                    }`}
-                  >
-                    <Icon className="h-3 w-3" />
-                    <span className="hidden lg:inline">{label}</span>
-                  </button>
-                ))}
-              </div>
+              ))}
             </div>
           </div>
+        </section>
+      )}
 
-          {/* Advanced search panel */}
-          {advancedOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="border border-border bg-secondary/30 p-4 grid grid-cols-2 md:grid-cols-5 gap-3"
-            >
-              <div>
-                <label className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground block mb-1">PREZZO MIN €</label>
-                <input
-                  type="number" min="0" step="0.5" value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                  className="w-full bg-background border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground block mb-1">PREZZO MAX €</label>
-                <input
-                  type="number" min="0" step="0.5" value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                  className="w-full bg-background border border-border px-2 py-1.5 text-xs font-mono outline-none focus:border-primary"
-                />
-              </div>
-              <label className="flex items-center gap-2 cursor-pointer text-[10px] tracking-[0.2em] font-mono text-foreground">
-                <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="accent-primary" />
-                SOLO DISPONIBILI
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[10px] tracking-[0.2em] font-mono text-foreground">
-                <input type="checkbox" checked={featuredOnly} onChange={(e) => setFeaturedOnly(e.target.checked)} className="accent-primary" />
-                IN EVIDENZA
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[10px] tracking-[0.2em] font-mono text-foreground">
-                <input type="checkbox" checked={withImageOnly} onChange={(e) => setWithImageOnly(e.target.checked)} className="accent-primary" />
-                CON FOTO
-              </label>
-              <button
-                onClick={resetAll}
-                className="md:col-span-5 text-[10px] tracking-[0.25em] font-mono text-primary hover:underline justify-self-start"
-              >
-                AZZERA TUTTI I FILTRI
-              </button>
-            </motion.div>
-          )}
-        </div>
-      </section>
+      {/* ─── Filters toolbar (sticky) ─── */}
+      <div id="griglia" />
+      <MarketplaceFilters
+        value={filters}
+        onChange={setFilters}
+        genres={genres}
+        totalCount={vinyls.length}
+        allLabel="TUTTI"
+      />
 
       {/* ─── Results grid ─── */}
       <section className="py-12">
@@ -308,18 +344,13 @@ const Catalogo = () => {
               <h2 className="font-display text-2xl md:text-3xl font-bold">
                 {filtered.length} {filtered.length === 1 ? "RISULTATO" : "RISULTATI"}
               </h2>
-              {(genre !== "ALL" || debounced) && (
+              {(filters.genre !== "ALL" || filters.q) && (
                 <p className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground mt-1">
-                  {genre !== "ALL" && <>GENERE: <span className="text-primary">{genre}</span> · </>}
-                  {debounced && <>RICERCA: <span className="text-primary">"{debounced.toUpperCase()}"</span></>}
+                  {filters.genre !== "ALL" && <>GENERE: <span className="text-primary">{filters.genre}</span> · </>}
+                  {filters.q && <>RICERCA: <span className="text-primary">"{filters.q.toUpperCase()}"</span></>}
                 </p>
               )}
             </div>
-            {activeFiltersCount > 0 && (
-              <button onClick={resetAll} className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground hover:text-primary flex items-center gap-1">
-                <X className="h-3 w-3" /> AZZERA
-              </button>
-            )}
           </div>
 
           {isLoading ? (
@@ -342,10 +373,16 @@ const Catalogo = () => {
                   whileInView="visible"
                   viewport={{ once: true, margin: "100px" }}
                   variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.35, delay: Math.min(i * 0.02, 0.3) } } }}
+                  aria-label={`${v.name} — €${Number(v.price).toFixed(2)}`}
                 >
                   <div className="aspect-square bg-secondary border border-border overflow-hidden flex items-center justify-center mb-3 relative">
                     {v.image_url ? (
-                      <img src={v.image_url} alt={v.name} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img
+                        src={v.image_url}
+                        alt={`${v.name}${v.genre ? ` — vinile ${v.genre.toLowerCase()}` : ""}`}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
                     ) : (
                       <Disc3 className="h-12 w-12 text-muted-foreground" strokeWidth={1.2} />
                     )}
@@ -383,7 +420,7 @@ const Catalogo = () => {
                   <Tag className="h-3 w-3" /> CORRELATI
                 </p>
                 <h2 className="font-display text-2xl md:text-3xl font-bold">
-                  {genre !== "ALL" ? `ALTRI ${genre}` : "POTREBBERO PIACERTI"}
+                  {filters.genre !== "ALL" ? `ALTRI ${filters.genre}` : "POTREBBERO PIACERTI"}
                 </h2>
               </div>
             </div>
@@ -447,7 +484,7 @@ const Catalogo = () => {
               </a>
             </motion.div>
             <motion.div className="relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <img src={vinylCrates} alt="Casse vinili" className="w-full aspect-[4/5] object-cover" loading="lazy" />
+              <img src={vinylCrates} alt="Casse vinili Elementi Sonori Lecce" className="w-full aspect-[4/5] object-cover" loading="lazy" />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <p className="text-primary text-[10px] tracking-[0.3em] font-mono mb-2">AGGIORNATO QUOTIDIANAMENTE</p>
