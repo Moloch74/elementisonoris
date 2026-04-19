@@ -1,0 +1,1 @@
+UPDATE public.products SET image_url='/shop/vinyl-placeholder-5.jpg' WHERE id='02f14fc3-a70c-43ec-b269-3c5fe9d0779c' AND (image_url IS NULL OR image_url = '');
