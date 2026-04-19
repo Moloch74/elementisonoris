@@ -148,6 +148,16 @@ const Navbar = () => {
         {isOpen && (
           <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="md:hidden bg-background border-b border-border overflow-hidden">
             <div className="flex flex-col px-4 py-6 gap-4">
+              <form onSubmit={(e) => { handleSearch(e); setIsOpen(false); }} className="flex items-center border border-border focus-within:border-primary px-2">
+                <Search className="h-3.5 w-3.5 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQ}
+                  onChange={(e) => setSearchQ(e.target.value)}
+                  placeholder={t("nav.cercaVinili")}
+                  className="bg-transparent border-0 outline-none px-2 py-2 text-xs tracking-wider font-mono text-foreground placeholder:text-muted-foreground w-full"
+                />
+              </form>
               {navItems.map((item) => (
                 <Link key={item.path} to={item.path} onClick={() => setIsOpen(false)} className={`text-sm tracking-[0.2em] font-mono transition-colors ${location.pathname === item.path ? "text-primary" : "text-foreground"}`}>
                   {item.label}
