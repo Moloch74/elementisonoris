@@ -196,13 +196,13 @@ const Shop = () => {
           </Button>
         </motion.div>
 
-        {/* Filters */}
-        <div className="flex items-center gap-3 mb-10 flex-wrap">
+        {/* Category tabs */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <Filter className="h-4 w-4 text-muted-foreground" />
           {categories.map((cat) => (
             <button
               key={cat.value}
-              onClick={() => setActiveCategory(cat.value)}
+              onClick={() => { setActiveCategory(cat.value); setFilters((f) => ({ ...f, genre: "ALL" })); }}
               className={`text-xs tracking-[0.2em] font-mono px-4 py-2 border transition-all ${
                 activeCategory === cat.value
                   ? "border-primary bg-primary text-primary-foreground"
@@ -213,15 +213,33 @@ const Shop = () => {
             </button>
           ))}
         </div>
+      </section>
 
-        {queryTerm && (
-          <div className="mb-8 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
-            <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span>
-            <span className="text-xs font-mono text-primary font-bold">"{queryTerm}"</span>
+      {/* Marketplace search/filters bar (same as Catalogo) */}
+      <MarketplaceFilters
+        value={filters}
+        onChange={(next) => {
+          setFilters(next);
+          // keep ?q in URL synced
+          const sp = new URLSearchParams(searchParams);
+          if (next.q) sp.set("q", next.q); else sp.delete("q");
+          setSearchParams(sp, { replace: true });
+        }}
+        genres={genres}
+        totalCount={byCategory.length}
+        allLabel="TUTTI"
+        showGenres={activeCategory === "vinili" || activeCategory === "tutti"}
+      />
+
+      <section className="container mx-auto px-4 md:px-8 py-8">
+        {(filters.q || filters.genre !== "ALL") && (
+          <div className="mb-6 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
+            {filters.q && <><span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span><span className="text-xs font-mono text-primary font-bold">"{filters.q}"</span></>}
+            {filters.genre !== "ALL" && <span className="text-[10px] tracking-[0.25em] font-mono text-primary">· {filters.genre}</span>}
             <span className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground ml-auto">
               {filtered.length} {filtered.length === 1 ? "RISULTATO" : "RISULTATI"}
             </span>
-            <button onClick={clearSearch} className="text-muted-foreground hover:text-foreground" aria-label="Pulisci ricerca">
+            <button onClick={() => { setFilters(defaultFilters); const sp = new URLSearchParams(searchParams); sp.delete("q"); setSearchParams(sp, { replace: true }); }} className="text-muted-foreground hover:text-foreground" aria-label="Azzera filtri">
               <X className="h-4 w-4" />
             </button>
           </div>
