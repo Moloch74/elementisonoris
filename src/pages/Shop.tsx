@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star } from "lucide-react";
+import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star, RotateCw, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -56,13 +56,28 @@ type Product = {
   updated_at: string;
 };
 
+const getMeta = (p: Product | null) => {
+  const m = (p?.metadata ?? {}) as Record<string, unknown>;
+  return {
+    backUrl: (m.image_back_url as string) || "",
+    audioUrl: (m.audio_preview_url as string) || "",
+    hasBack: !!(m.has_back as boolean) && !!(m.image_back_url as string),
+  };
+};
+
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [flipped, setFlipped] = useState(false);
   const { addItem, itemCount } = useCart();
   const { user } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+
+  const openProduct = (p: Product) => {
+    setFlipped(false);
+    setSelectedProduct(p);
+  };
 
   const categories: { value: Category; label: string }[] = [
     { value: "tutti", label: t("shop.tutti") },
