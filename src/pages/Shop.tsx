@@ -200,6 +200,19 @@ const Shop = () => {
           ))}
         </div>
 
+        {queryTerm && (
+          <div className="mb-8 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
+            <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span>
+            <span className="text-xs font-mono text-primary font-bold">"{queryTerm}"</span>
+            <span className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground ml-auto">
+              {filtered.length} {filtered.length === 1 ? "RISULTATO" : "RISULTATI"}
+            </span>
+            <button onClick={clearSearch} className="text-muted-foreground hover:text-foreground" aria-label="Pulisci ricerca">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {/* Featured Section */}
         {!isLoading && featuredProducts.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-12">
