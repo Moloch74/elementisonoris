@@ -44,9 +44,9 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/chi-siamo" element={<ChiSiamo />} />
-                  <Route path="/marketplace" element={<Marketplace />} />
-                  {/* Backward compatibility: old /catalogo URL → /marketplace */}
-                  <Route path="/catalogo" element={<Navigate to="/marketplace" replace />} />
+                  <Route path="/catalogo" element={<Catalogo />} />
+                  {/* Backward compatibility: any old /marketplace URL → /catalogo */}
+                  <Route path="/marketplace" element={<Navigate to="/catalogo" replace />} />
                   <Route path="/eventi" element={<Eventi />} />
                   <Route path="/contatti" element={<Contatti />} />
                   <Route path="/shop" element={<Shop />} />
