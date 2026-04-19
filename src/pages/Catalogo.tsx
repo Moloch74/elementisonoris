@@ -12,6 +12,7 @@ import vinylCrates from "@/assets/vinyl-crates.jpg";
 import FloatingSticker from "@/components/FloatingSticker";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
+import VinylCover from "@/components/VinylCover";
 
 const DISCOGS_BASE = "https://www.discogs.com/seller/Elementisonori_Shop/profile";
 
@@ -230,7 +231,13 @@ const Catalogo = () => {
                 transition={{ delay: 0.2 + i * 0.1, duration: 0.8 }}
                 className={`hidden md:block aspect-square overflow-hidden border border-border ${i % 2 === 0 ? "translate-y-12" : "-translate-y-6"}`}
               >
-                <img src={withVersion(v.image_url!, v.updated_at)} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" loading="lazy" />
+                <VinylCover
+                  src={withVersion(v.image_url!, v.updated_at)}
+                  name={v.name}
+                  alt=""
+                  className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                  loading="lazy"
+                />
               </motion.div>
             ))}
           </div>
@@ -312,8 +319,9 @@ const Catalogo = () => {
                   className="bg-background group relative overflow-hidden text-left"
                 >
                   <div className="aspect-square overflow-hidden">
-                    <img
+                    <VinylCover
                       src={withVersion(v.image_url!, v.updated_at)}
+                      name={v.name}
                       alt={`${v.name} — vinile ${v.genre || ""}`}
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -384,16 +392,13 @@ const Catalogo = () => {
                   aria-label={`${v.name} — €${Number(v.price).toFixed(2)}`}
                 >
                   <div className="aspect-square bg-secondary border border-border overflow-hidden flex items-center justify-center mb-3 relative">
-                    {v.image_url ? (
-                      <img
-                        src={withVersion(v.image_url, v.updated_at)}
-                        alt={`${v.name}${v.genre ? ` — vinile ${v.genre.toLowerCase()}` : ""}`}
-                        loading="lazy"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <Disc3 className="h-12 w-12 text-muted-foreground" strokeWidth={1.2} />
-                    )}
+                    <VinylCover
+                      src={v.image_url ? withVersion(v.image_url, v.updated_at) : null}
+                      name={v.name}
+                      alt={`${v.name}${v.genre ? ` — vinile ${v.genre.toLowerCase()}` : ""}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                     {v.is_featured && (
                       <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[8px] tracking-[0.2em] font-mono px-1.5 py-0.5">★</span>
                     )}

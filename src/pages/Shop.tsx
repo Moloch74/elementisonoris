@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
+import VinylCover from "@/components/VinylCover";
 
 type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
 
@@ -137,7 +138,7 @@ const Shop = () => {
   };
 
   const getImage = (imageUrl: string | null, updatedAt?: string) => {
-    if (!imageUrl) return "/shop/vinyl-placeholder-1.jpg";
+    if (!imageUrl) return null;
     return withVersion(imageUrl, updatedAt);
   };
 
@@ -246,7 +247,7 @@ const Shop = () => {
                     <Star className="h-4 w-4 text-primary fill-primary" />
                   </div>
                   <div className="relative aspect-square overflow-hidden">
-                    <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <VinylCover src={getImage(product.image_url, product.updated_at)} name={product.name} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                     )}
@@ -291,7 +292,7 @@ const Shop = () => {
                 onClick={() => openProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
-                  <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <VinylCover src={getImage(product.image_url, product.updated_at)} name={product.name} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {product.badge && (
                     <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                   )}
@@ -355,18 +356,22 @@ const Shop = () => {
                     animate={{ rotateY: flipped ? 180 : 0 }}
                     transition={{ duration: 0.7, ease: "easeInOut" }}
                   >
-                    <img
-                      src={frontImg}
-                      alt={`${selectedProduct.name} — fronte`}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{ backfaceVisibility: "hidden" }}
-                    />
-                    <img
-                      src={backImg}
-                      alt={`${selectedProduct.name} — retro`}
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-                    />
+                    <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: "hidden" }}>
+                      <VinylCover
+                        src={frontImg}
+                        name={selectedProduct.name}
+                        alt={`${selectedProduct.name} — fronte`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="absolute inset-0 w-full h-full" style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+                      <VinylCover
+                        src={backImg}
+                        name={selectedProduct.name}
+                        alt={`${selectedProduct.name} — retro`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                   </motion.div>
 
                   {meta.hasBack && (
