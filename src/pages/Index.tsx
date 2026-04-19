@@ -87,7 +87,8 @@ const Index = () => {
         style={{ backgroundImage: `url(${ominiBg})` }}
         aria-hidden="true"
       />
-      <div className="fixed inset-0 -z-10 bg-background/85" aria-hidden="true" />
+      <div className="fixed inset-0 -z-10 bg-background/95" aria-hidden="true" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background/80" aria-hidden="true" />
 
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
