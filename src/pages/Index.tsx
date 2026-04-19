@@ -422,6 +422,39 @@ const Index = () => {
         </div>
       </section>
 
+      {/* FAQ — testo ricco per SEO */}
+      <section className="py-24 border-t border-border relative bg-background/70">
+        <div className="container mx-auto px-4 md:px-8 max-w-4xl">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">[ FAQ ]</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold">
+              {t("index.faq.title1")} <span className="text-neon">{t("index.faq.title2")}</span>
+            </h2>
+          </motion.div>
+          <div className="space-y-px bg-border">
+            {[
+              { q: t("index.faq.q1"), a: t("index.faq.a1") },
+              { q: t("index.faq.q2"), a: t("index.faq.a2") },
+              { q: t("index.faq.q3"), a: t("index.faq.a3") },
+              { q: t("index.faq.q4"), a: t("index.faq.a4") },
+              { q: t("index.faq.q5"), a: t("index.faq.a5") },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                className="bg-background p-6 md:p-8"
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+              >
+                <h3 className="font-display text-lg md:text-xl font-bold mb-2 text-primary">{item.q}</h3>
+                <p className="text-muted-foreground text-sm font-mono leading-relaxed">{item.a}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Dove Siamo */}
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8">
