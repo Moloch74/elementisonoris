@@ -189,11 +189,11 @@ const Admin = () => {
   // ─── Product Mutations ───
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const metadata: Record<string, unknown> = {
+      const metadata = {
         image_back_url: form.has_back && form.image_back_url ? form.image_back_url : null,
         audio_preview_url: form.audio_preview_url || null,
         has_back: form.has_back && !!form.image_back_url,
-      };
+      } as unknown as Database["public"]["Tables"]["products"]["Row"]["metadata"];
       const payload = {
         name: form.name,
         description: form.description || null,
