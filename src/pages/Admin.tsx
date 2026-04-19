@@ -425,6 +425,7 @@ const Admin = () => {
     setForm({
       name: product.name, description: product.description || "",
       price: String(product.price), category: product.category,
+      genre: (product as any).genre || "",
       stock: String(product.stock), badge: product.badge || "",
       image_url: product.image_url || "",
       image_back_url: backUrl,
