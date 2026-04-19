@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star } from "lucide-react";
+import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star, RotateCw, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -56,13 +56,28 @@ type Product = {
   updated_at: string;
 };
 
+const getMeta = (p: Product | null) => {
+  const m = (p?.metadata ?? {}) as Record<string, unknown>;
+  return {
+    backUrl: (m.image_back_url as string) || "",
+    audioUrl: (m.audio_preview_url as string) || "",
+    hasBack: !!(m.has_back as boolean) && !!(m.image_back_url as string),
+  };
+};
+
 const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [flipped, setFlipped] = useState(false);
   const { addItem, itemCount } = useCart();
   const { user } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+
+  const openProduct = (p: Product) => {
+    setFlipped(false);
+    setSelectedProduct(p);
+  };
 
   const categories: { value: Category; label: string }[] = [
     { value: "tutti", label: t("shop.tutti") },
@@ -171,7 +186,7 @@ const Shop = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
                   className="group bg-card border-2 border-primary/30 overflow-hidden hover:border-primary transition-colors cursor-pointer relative"
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                 >
                   <div className="absolute top-3 right-3 z-10">
                     <Star className="h-4 w-4 text-primary fill-primary" />
@@ -219,7 +234,7 @@ const Shop = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
+                onClick={() => openProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
                   <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -272,10 +287,52 @@ const Shop = () => {
               <button onClick={() => setSelectedProduct(null)} className="absolute top-4 right-4 z-10 text-muted-foreground hover:text-foreground transition-colors bg-card/80 p-2">
                 <X className="h-5 w-5" />
               </button>
+              {(() => {
+                const meta = getMeta(selectedProduct);
+                const frontImg = getImage(selectedProduct.image_url);
+                const backImg = meta.backUrl || frontImg;
+                return (
               <div className="grid grid-cols-1 md:grid-cols-2">
-                <div className="aspect-square overflow-hidden">
-                  <img src={getImage(selectedProduct.image_url)} alt={selectedProduct.name} className="w-full h-full object-cover" />
+                {/* Image side with flip */}
+                <div className="relative aspect-square overflow-hidden bg-secondary/40" style={{ perspective: "1200px" }}>
+                  <motion.div
+                    className="relative w-full h-full"
+                    style={{ transformStyle: "preserve-3d" }}
+                    animate={{ rotateY: flipped ? 180 : 0 }}
+                    transition={{ duration: 0.7, ease: "easeInOut" }}
+                  >
+                    <img
+                      src={frontImg}
+                      alt={`${selectedProduct.name} — fronte`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ backfaceVisibility: "hidden" }}
+                    />
+                    <img
+                      src={backImg}
+                      alt={`${selectedProduct.name} — retro`}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+                    />
+                  </motion.div>
+
+                  {meta.hasBack && (
+                    <button
+                      type="button"
+                      onClick={() => setFlipped((v) => !v)}
+                      className="absolute bottom-3 right-3 z-20 flex items-center gap-2 bg-background/90 border border-border hover:border-primary text-foreground hover:text-primary px-3 py-2 text-[10px] tracking-[0.2em] font-mono transition-colors backdrop-blur-sm"
+                    >
+                      <RotateCw className="h-3.5 w-3.5" />
+                      {flipped ? "FRONTE" : "RETRO"}
+                    </button>
+                  )}
+
+                  {meta.hasBack && (
+                    <span className="absolute top-3 left-3 z-20 bg-background/90 border border-border px-2 py-1 text-[9px] tracking-[0.2em] font-mono text-muted-foreground backdrop-blur-sm">
+                      {flipped ? "B-SIDE" : "A-SIDE"}
+                    </span>
+                  )}
                 </div>
+
                 <div className="p-6 md:p-8 flex flex-col justify-between">
                   <div className="space-y-4">
                     <div>
@@ -286,6 +343,18 @@ const Shop = () => {
                       <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-wide uppercase">{selectedProduct.name}</h2>
                     </div>
                     <p className="text-muted-foreground text-sm font-mono tracking-wider leading-relaxed">{selectedProduct.description}</p>
+
+                    {/* Audio preview */}
+                    {meta.audioUrl && (
+                      <div className="border border-border bg-secondary/40 p-3 space-y-2">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Music2 className="h-3.5 w-3.5" />
+                          <span className="text-[10px] tracking-[0.25em] font-mono font-bold">AUDIO PREVIEW</span>
+                        </div>
+                        <audio src={meta.audioUrl} controls preload="none" className="w-full h-9" />
+                      </div>
+                    )}
+
                     <div className="border-t border-border pt-4 space-y-3">
                       <div className="flex items-center gap-2 text-muted-foreground">
                         <Package className="h-4 w-4" />
@@ -320,6 +389,8 @@ const Shop = () => {
                   </div>
                 </div>
               </div>
+                );
+              })()}
             </motion.div>
           </motion.div>
         )}
