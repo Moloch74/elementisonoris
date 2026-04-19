@@ -298,6 +298,41 @@ const translations: Record<string, Record<Lang, string>> = {
   "cart.checkout": { it: "PROCEDI AL CHECKOUT", en: "PROCEED TO CHECKOUT" },
   "cart.accediPrima": { it: "ACCEDI PER VEDERE IL CARRELLO", en: "LOGIN TO VIEW YOUR CART" },
   "cart.accediDesc": { it: "Devi accedere per utilizzare il carrello.", en: "You need to log in to use the cart." },
+
+  // Index - Manifesto
+  "index.manifesto.tag": { it: "MANIFESTO", en: "MANIFESTO" },
+  "index.manifesto.title1": { it: "PIÙ DI UN NEGOZIO.", en: "MORE THAN A STORE." },
+  "index.manifesto.title2": { it: "UN PUNTO DI INCONTRO.", en: "A MEETING POINT." },
+  "index.manifesto.p1": { it: "Elementi Sonori non è solo un record shop. È uno spazio fisico dove la cultura underground prende forma: vinili selezionati a mano, capi street curati nei dettagli, eventi che fanno vibrare il dancefloor leccese.", en: "Elementi Sonori is not just a record shop. It is a physical space where underground culture takes shape: hand-picked vinyl, carefully crafted streetwear, and events that make the Lecce dancefloor vibrate." },
+  "index.manifesto.p2": { it: "Crediamo nella selezione, non nell'algoritmo. Ogni disco che entra nei nostri scaffali è ascoltato, valutato, scelto. Niente novità per il numero, solo musica che merita di girare.", en: "We believe in curation, not algorithms. Every record on our shelves is listened to, evaluated, chosen. No novelty for the sake of it, only music that deserves to spin." },
+  "index.manifesto.p3": { it: "Dal techno più cupo all'house più solare, dall'acid al jungle, fino all'ambient più ipnotico: il nostro catalogo riflette l'eclettismo di chi vive la notte e la cultura club come parte essenziale dell'identità.", en: "From the darkest techno to the brightest house, from acid to jungle, all the way to the most hypnotic ambient: our catalog reflects the eclecticism of those who live the night and club culture as an essential part of their identity." },
+  "index.manifesto.p4": { it: "Lo streetwear che proponiamo nasce dalla stessa visione: capi tecnici, grafiche oneste, taglio oversize. Indossabili in cuffia o sotto i sub di un warehouse, sempre con la stessa attitudine.", en: "The streetwear we offer comes from the same vision: technical garments, honest graphics, oversize cuts. Wearable with headphones on or under warehouse subs, always with the same attitude." },
+
+  // Index - Pillars
+  "index.pillars.title": { it: "COSA OFFRIAMO", en: "WHAT WE OFFER" },
+  "index.pillars.subtitle": { it: "VINYL · STREETWEAR · EVENTI · COMMUNITY", en: "VINYL · STREETWEAR · EVENTS · COMMUNITY" },
+  "index.pillars.p1.title": { it: "VINILI SELEZIONATI", en: "CURATED VINYL" },
+  "index.pillars.p1.desc": { it: "Più di 5.000 dischi tra novità, ristampe e rarità. Techno, house, acid, jungle, electro, ambient. Selezione settimanale, ogni martedì.", en: "Over 5,000 records: new releases, reissues and rarities. Techno, house, acid, jungle, electro, ambient. Weekly selection, every Tuesday." },
+  "index.pillars.p2.title": { it: "STREETWEAR", en: "STREETWEAR" },
+  "index.pillars.p2.desc": { it: "Hoodie oversize, tee grafiche, accessori. Brand indipendenti italiani ed europei, capsule esclusive Elementi Sonori.", en: "Oversize hoodies, graphic tees, accessories. Independent Italian and European brands, exclusive Elementi Sonori capsules." },
+  "index.pillars.p3.title": { it: "EVENTI", en: "EVENTS" },
+  "index.pillars.p3.desc": { it: "In-store listening, vinyl-only night, rave warehouse, digging day. La scena leccese si ritrova qui, almeno due volte al mese.", en: "In-store listening, vinyl-only nights, warehouse raves, digging days. The Lecce scene meets here, at least twice a month." },
+  "index.pillars.p4.title": { it: "COMMUNITY", en: "COMMUNITY" },
+  "index.pillars.p4.desc": { it: "Un punto di riferimento per dj, collezionisti, curiosi. Consigli, scambi, ascolti. Lo shop come piazza culturale, non solo come cassa.", en: "A reference point for DJs, collectors, the curious. Tips, exchanges, listening sessions. The shop as a cultural square, not just a checkout." },
+
+  // Index - FAQ
+  "index.faq.title1": { it: "DOMANDE", en: "FREQUENT" },
+  "index.faq.title2": { it: "FREQUENTI", en: "QUESTIONS" },
+  "index.faq.q1": { it: "Posso ascoltare i dischi prima di acquistarli?", en: "Can I preview the records before buying?" },
+  "index.faq.a1": { it: "Sì. In negozio abbiamo postazioni di ascolto. Vieni, prendi una pila di dischi e ascolta con calma. È così che si scopre la musica vera.", en: "Yes. In-store we have listening stations. Come, grab a stack of records and listen at your own pace. That's how you discover real music." },
+  "index.faq.q2": { it: "Vendete anche online?", en: "Do you sell online?" },
+  "index.faq.a2": { it: "Una parte del catalogo è disponibile sul nostro shop online e su Discogs (profilo Elementisonori_Shop). Spediamo in tutta Italia ed Europa.", en: "Part of our catalog is available on our online shop and on Discogs (profile Elementisonori_Shop). We ship across Italy and Europe." },
+  "index.faq.q3": { it: "Acquistate vinili usati?", en: "Do you buy used vinyl?" },
+  "index.faq.a3": { it: "Sì, valutiamo collezioni di qualità. Scrivici via WhatsApp o passa in negozio con un campione: ti facciamo una stima onesta.", en: "Yes, we evaluate quality collections. Write us on WhatsApp or drop by with a sample: we'll give you an honest estimate." },
+  "index.faq.q4": { it: "Organizzate eventi nel vostro spazio?", en: "Do you host events in your space?" },
+  "index.faq.a4": { it: "Sì. Ogni mese organizziamo listening session, vinyl-only night e collaboriamo con realtà del territorio per warehouse e festival underground.", en: "Yes. Every month we host listening sessions, vinyl-only nights and we collaborate with local crews for warehouse parties and underground festivals." },
+  "index.faq.q5": { it: "Dove vi trovo a Lecce?", en: "Where can I find you in Lecce?" },
+  "index.faq.a5": { it: "Via Alfonso Sozy Carafa 31B, a due passi dal centro storico. Aperti lun 17–21:30, mar–sab 11–13:30 / 17–21:30. Domenica chiuso.", en: "Via Alfonso Sozy Carafa 31B, a few steps from the historic center. Open Mon 5pm–9:30pm, Tue–Sat 11am–1:30pm / 5pm–9:30pm. Closed on Sunday." },
 };
 
 const LangContext = createContext<LangContextType>({
