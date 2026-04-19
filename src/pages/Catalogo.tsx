@@ -311,12 +311,12 @@ const Catalogo = () => {
               </h2>
               <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">SCELTI DA NOI</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-px bg-border">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
               {featured.map((v) => (
                 <button
                   key={v.id}
                   onClick={() => goProduct(v.id)}
-                  className="bg-background group relative overflow-hidden text-left"
+                  className="bg-background border border-border hover:border-primary/40 transition-colors group relative overflow-hidden text-left"
                 >
                   <div className="aspect-square overflow-hidden">
                     <VinylCover
@@ -378,13 +378,13 @@ const Catalogo = () => {
               <p className="text-[10px] font-mono text-muted-foreground">Prova ad azzerare i filtri o cercare su Discogs in fondo alla pagina.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-border">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {filtered.map((v, i) => (
                 <motion.button
                   key={v.id}
                   type="button"
                   onClick={() => goProduct(v.id)}
-                  className="bg-background p-4 text-left group hover:bg-secondary/40 transition-colors flex flex-col"
+                  className="bg-background border border-border p-4 text-left group hover:bg-secondary/40 hover:border-primary/40 transition-colors flex flex-col"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "100px" }}
