@@ -234,6 +234,66 @@ const Index = () => {
         </div>
       </section>
 
+      {/* La nostra storia in immagini — placeholder gallery */}
+      <section className="py-24 border-t border-border relative bg-background/80">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-5xl md:text-7xl font-bold">
+              {t("index.storiaTitle")} <span className="text-neon">{t("index.storiaImmagini")}</span>
+            </h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] mt-4 font-mono">{t("index.storiaSubtitle")}</p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <motion.div
+                key={i}
+                className="aspect-square border border-border bg-secondary/40 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.05 }}
+              >
+                <ImageIcon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
+                <span className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground">
+                  [{String(i + 1).padStart(2, "0")}] {t("index.photoSlot")}
+                </span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Il nostro team */}
+      <section className="py-24 border-t border-border relative bg-background/80">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-5xl md:text-7xl font-bold">
+              {t("index.teamTitle")} <span className="text-neon">{t("index.teamWord")}</span>
+            </h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] mt-4 font-mono">{t("index.teamSubtitle")}</p>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border">
+            {teamMembers.map((m, i) => (
+              <motion.div
+                key={i}
+                className="bg-background p-6 group hover:bg-secondary/60 transition-colors"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <div className="aspect-square border border-border bg-secondary/40 flex items-center justify-center mb-4 group-hover:border-primary transition-colors">
+                  <User className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
+                </div>
+                <p className="text-[10px] tracking-[0.25em] font-mono text-primary mb-1">[{String(i + 1).padStart(2, "0")}]</p>
+                <h3 className="font-display text-lg font-bold leading-tight">{m.name}</h3>
+                <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mt-1">{m.role}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Community */}
       <section className="py-24 border-t border-border relative noise-overlay">
         <div className="container mx-auto px-4 md:px-8">
