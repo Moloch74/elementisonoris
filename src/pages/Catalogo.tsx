@@ -311,12 +311,12 @@ const Catalogo = () => {
               </h2>
               <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">SCELTI DA NOI</span>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-px bg-border">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
               {featured.map((v) => (
                 <button
                   key={v.id}
                   onClick={() => goProduct(v.id)}
-                  className="bg-background group relative overflow-hidden text-left"
+                  className="bg-background border border-border hover:border-primary/40 transition-colors group relative overflow-hidden text-left"
                 >
                   <div className="aspect-square overflow-hidden">
                     <VinylCover
