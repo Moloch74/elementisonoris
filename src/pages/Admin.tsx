@@ -31,6 +31,7 @@ type ProductForm = {
   description: string;
   price: string;
   category: ProductCategory;
+  genre: string;
   stock: string;
   badge: string;
   image_url: string;
@@ -42,7 +43,7 @@ type ProductForm = {
 };
 
 const emptyForm: ProductForm = {
-  name: "", description: "", price: "", category: "vinili",
+  name: "", description: "", price: "", category: "vinili", genre: "",
   stock: "0", badge: "", image_url: "",
   image_back_url: "", audio_preview_url: "", has_back: false,
   is_active: true, is_featured: false,
