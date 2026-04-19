@@ -52,6 +52,7 @@ type Product = {
   badge: string | null;
   is_active: boolean;
   is_featured: boolean;
+  genre: string | null;
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
