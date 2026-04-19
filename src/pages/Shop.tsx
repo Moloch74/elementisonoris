@@ -186,7 +186,7 @@ const Shop = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
                   className="group bg-card border-2 border-primary/30 overflow-hidden hover:border-primary transition-colors cursor-pointer relative"
-                  onClick={() => setSelectedProduct(product)}
+                  onClick={() => openProduct(product)}
                 >
                   <div className="absolute top-3 right-3 z-10">
                     <Star className="h-4 w-4 text-primary fill-primary" />
@@ -234,7 +234,7 @@ const Shop = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
                 className="group bg-card border border-border overflow-hidden hover:border-muted-foreground transition-colors cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
+                onClick={() => openProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
                   <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
