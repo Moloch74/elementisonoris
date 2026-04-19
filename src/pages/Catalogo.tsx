@@ -26,6 +26,14 @@ type Vinyl = {
   is_featured: boolean;
   genre: string | null;
   created_at: string;
+  updated_at: string;
+};
+
+// Cache-bust uploaded images so freshly replaced covers don't show stale browser cache
+const withVersion = (url: string, updatedAt?: string) => {
+  if (!url || !updatedAt) return url;
+  const v = new Date(updatedAt).getTime();
+  return url.includes("?") ? `${url}&v=${v}` : `${url}?v=${v}`;
 };
 
 const fadeUp = {
