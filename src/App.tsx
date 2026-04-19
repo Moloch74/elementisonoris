@@ -14,7 +14,7 @@ import VinylCursor from "@/components/VinylCursor";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import Index from "./pages/Index.tsx";
 import ChiSiamo from "./pages/ChiSiamo.tsx";
-import Catalogo from "./pages/Catalogo.tsx";
+import Marketplace from "./pages/Marketplace.tsx";
 import Eventi from "./pages/Eventi.tsx";
 import Contatti from "./pages/Contatti.tsx";
 import Shop from "./pages/Shop.tsx";
