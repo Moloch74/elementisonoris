@@ -71,13 +71,20 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [flipped, setFlipped] = useState(false);
+  const [filters, setFilters] = useState<MarketplaceFiltersValue>(defaultFilters);
   const { addItem, itemCount } = useCart();
   const { user } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryTerm = (searchParams.get("q") || "").trim().toLowerCase();
+  const queryTerm = (searchParams.get("q") || "").trim();
   const productIdParam = searchParams.get("p");
+
+  // Sync incoming ?q= into filters once
+  useEffect(() => {
+    if (queryTerm && queryTerm !== filters.q) setFilters((f) => ({ ...f, q: queryTerm }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryTerm]);
 
   const openProduct = (p: Product) => {
     setFlipped(false);
@@ -105,16 +112,21 @@ const Shop = () => {
   });
 
   const featuredProducts = products.filter((p) => p.is_featured);
-  const byCategory =
-    activeCategory === "tutti"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
-  const filtered = queryTerm
-    ? byCategory.filter((p) => {
-        const hay = `${p.name} ${p.description ?? ""}`.toLowerCase();
-        return hay.includes(queryTerm);
-      })
-    : byCategory;
+  const byCategory = activeCategory === "tutti"
+    ? products
+    : products.filter((p) => p.category === activeCategory);
+
+  // Genres derived from current category scope
+  const genres = useMemo(() => {
+    const map = new Map<string, number>();
+    byCategory.forEach((p) => {
+      const g = (p.genre || "").trim().toUpperCase();
+      if (g) map.set(g, (map.get(g) || 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
+  }, [byCategory]);
+
+  const filtered = useMemo(() => applyFilters(byCategory, filters), [byCategory, filters]);
 
   // Apri automaticamente il prodotto se arriviamo con ?p=<id>
   useEffect(() => {
