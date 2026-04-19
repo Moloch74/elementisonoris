@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, MapPin, Clock, Phone } from "lucide-react";
+import { ArrowRight, MapPin, Clock, Phone, Image as ImageIcon, User } from "lucide-react";
 import { useLang } from "@/contexts/LangContext";
 import heroImg from "@/assets/hero-rave.jpg";
 import undergroundShop from "@/assets/underground-shop.jpg";
@@ -13,6 +13,7 @@ import murales from "@/assets/murales.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
 import streetwearDisplay from "@/assets/streetwear-display.jpg";
 import communityStore from "@/assets/community-store.jpg";
+import ominiBg from "@/assets/omini-bg.jpg";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
 import SocialLinks from "@/components/SocialLinks";
