@@ -10,6 +10,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
+import VinylCover from "@/components/VinylCover";
 
 type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
 
@@ -137,7 +138,7 @@ const Shop = () => {
   };
 
   const getImage = (imageUrl: string | null, updatedAt?: string) => {
-    if (!imageUrl) return "/shop/vinyl-placeholder-1.jpg";
+    if (!imageUrl) return null;
     return withVersion(imageUrl, updatedAt);
   };
 
