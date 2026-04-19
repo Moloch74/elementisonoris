@@ -5,7 +5,10 @@ import {
   Image as ImageIcon, Package, Users, ShoppingBag, BarChart3,
   Eye, ChevronDown, ChevronUp, Star, StarOff, Tag, Mail, Send,
   Percent, DollarSign, Copy, Check, CalendarDays, MapPin, Clock,
+  UserSquare2, Images,
 } from "lucide-react";
+import TeamManager from "@/components/admin/TeamManager";
+import GalleryManager from "@/components/admin/GalleryManager";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -88,7 +91,7 @@ const emptyEventForm: EventForm = {
   description: "", time_range: "", is_upcoming: true, is_active: true, sort_order: "0",
 };
 
-type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce" | "events";
+type Tab = "overview" | "products" | "orders" | "customers" | "ecommerce" | "events" | "team" | "gallery";
 
 const Admin = () => {
   const { user } = useAuth();
@@ -532,6 +535,8 @@ const Admin = () => {
     { key: "customers", label: "CLIENTI", icon: <Users className="h-4 w-4" /> },
     { key: "ecommerce", label: "E-COMMERCE", icon: <Tag className="h-4 w-4" /> },
     { key: "events", label: "EVENTI", icon: <CalendarDays className="h-4 w-4" /> },
+    { key: "team", label: "TEAM", icon: <UserSquare2 className="h-4 w-4" /> },
+    { key: "gallery", label: "GALLERIA", icon: <Images className="h-4 w-4" /> },
   ];
 
   return (
@@ -1289,6 +1294,12 @@ const Admin = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ═══════════════ TEAM ═══════════════ */}
+        {activeTab === "team" && <TeamManager />}
+
+        {/* ═══════════════ GALLERY ═══════════════ */}
+        {activeTab === "gallery" && <GalleryManager />}
       </div>
     </div>
   );
