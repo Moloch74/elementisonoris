@@ -1125,6 +1125,26 @@ const Admin = () => {
                       <Input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="es. NEW, LIMITED" className="bg-background border-border font-mono text-sm" />
                     </div>
                   </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">
+                      GENERE {form.category === "vinili" && <span className="text-primary">(consigliato)</span>}
+                    </label>
+                    <Input
+                      list="admin-genre-list"
+                      value={form.genre}
+                      onChange={(e) => setForm({ ...form, genre: e.target.value })}
+                      placeholder="es. TECHNO, ACID, HARDCORE, FREETEKNO..."
+                      className="bg-background border-border font-mono text-sm uppercase"
+                    />
+                    <datalist id="admin-genre-list">
+                      {Array.from(new Set(products.map((p: any) => p.genre).filter(Boolean))).map((g) => (
+                        <option key={g as string} value={g as string} />
+                      ))}
+                    </datalist>
+                    <p className="text-[10px] font-mono text-muted-foreground mt-1">
+                      Diventa subito un filtro nel catalogo. Suggerimenti dai generi già usati.
+                    </p>
+                  </div>
                   {/* Foto fronte */}
                   <div>
                     <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">FOTO FRONTE *</label>
