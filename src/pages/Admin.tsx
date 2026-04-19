@@ -203,13 +203,14 @@ const Admin = () => {
         description: form.description || null,
         price: parseFloat(form.price),
         category: form.category,
+        genre: form.genre.trim() || null,
         stock: parseInt(form.stock),
         badge: form.badge || null,
         image_url: form.image_url || null,
         is_active: form.is_active,
         is_featured: form.is_featured,
         metadata,
-      };
+      } as any;
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
         if (error) throw error;
