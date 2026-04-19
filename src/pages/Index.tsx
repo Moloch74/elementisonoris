@@ -198,7 +198,7 @@ const Index = () => {
             ))}
           </div>
           <motion.div className="text-center mt-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <Link to="/catalogo" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-block">
+            <Link to="/marketplace" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-block">
               {t("index.vediTuttoCatalogo")}
             </Link>
           </motion.div>
