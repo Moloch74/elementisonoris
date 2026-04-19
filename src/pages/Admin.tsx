@@ -31,6 +31,7 @@ type ProductForm = {
   description: string;
   price: string;
   category: ProductCategory;
+  genre: string;
   stock: string;
   badge: string;
   image_url: string;
@@ -42,7 +43,7 @@ type ProductForm = {
 };
 
 const emptyForm: ProductForm = {
-  name: "", description: "", price: "", category: "vinili",
+  name: "", description: "", price: "", category: "vinili", genre: "",
   stock: "0", badge: "", image_url: "",
   image_back_url: "", audio_preview_url: "", has_back: false,
   is_active: true, is_featured: false,
@@ -202,13 +203,14 @@ const Admin = () => {
         description: form.description || null,
         price: parseFloat(form.price),
         category: form.category,
+        genre: form.genre.trim() || null,
         stock: parseInt(form.stock),
         badge: form.badge || null,
         image_url: form.image_url || null,
         is_active: form.is_active,
         is_featured: form.is_featured,
         metadata,
-      };
+      } as any;
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
         if (error) throw error;
@@ -424,6 +426,7 @@ const Admin = () => {
     setForm({
       name: product.name, description: product.description || "",
       price: String(product.price), category: product.category,
+      genre: (product as any).genre || "",
       stock: String(product.stock), badge: product.badge || "",
       image_url: product.image_url || "",
       image_back_url: backUrl,
@@ -1121,6 +1124,26 @@ const Admin = () => {
                       <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">BADGE</label>
                       <Input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="es. NEW, LIMITED" className="bg-background border-border font-mono text-sm" />
                     </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">
+                      GENERE {form.category === "vinili" && <span className="text-primary">(consigliato)</span>}
+                    </label>
+                    <Input
+                      list="admin-genre-list"
+                      value={form.genre}
+                      onChange={(e) => setForm({ ...form, genre: e.target.value })}
+                      placeholder="es. TECHNO, ACID, HARDCORE, FREETEKNO..."
+                      className="bg-background border-border font-mono text-sm uppercase"
+                    />
+                    <datalist id="admin-genre-list">
+                      {Array.from(new Set(products.map((p: any) => p.genre).filter(Boolean))).map((g) => (
+                        <option key={g as string} value={g as string} />
+                      ))}
+                    </datalist>
+                    <p className="text-[10px] font-mono text-muted-foreground mt-1">
+                      Diventa subito un filtro nel catalogo. Suggerimenti dai generi già usati.
+                    </p>
                   </div>
                   {/* Foto fronte */}
                   <div>

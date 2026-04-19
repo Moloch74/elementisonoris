@@ -253,6 +253,7 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at: string
           description: string | null
+          genre: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -268,6 +269,7 @@ export type Database = {
           category: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
+          genre?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -283,6 +285,7 @@ export type Database = {
           category?: Database["public"]["Enums"]["product_category"]
           created_at?: string
           description?: string | null
+          genre?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
