@@ -32,7 +32,7 @@ const Navbar = () => {
 
   const navItems = [
     { label: t("nav.chiSiamo"), path: "/chi-siamo" },
-    { label: t("nav.catalogo"), path: "/marketplace" },
+    { label: t("nav.catalogo"), path: "/catalogo" },
     { label: t("nav.shop"), path: "/shop" },
     { label: t("nav.eventi"), path: "/eventi" },
     { label: t("nav.contatti"), path: "/contatti" },
