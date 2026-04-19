@@ -127,7 +127,7 @@ const Contatti = () => {
         <div className="container mx-auto px-4 md:px-8 text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-6">{t("contatti.esploraIl")} <span className="text-neon">{t("nav.catalogo")}</span></h2>
-            <Link to="/marketplace" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-2">
+            <Link to="/catalogo" className="border border-primary text-primary px-10 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300 inline-flex items-center gap-2">
               {t("contatti.vediVinili")} <ArrowRight size={14} />
             </Link>
           </motion.div>

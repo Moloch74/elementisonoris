@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star, RotateCw, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { useLang } from "@/contexts/LangContext";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
 
 import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
 import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
@@ -51,6 +52,7 @@ type Product = {
   badge: string | null;
   is_active: boolean;
   is_featured: boolean;
+  genre: string | null;
   metadata: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
@@ -69,13 +71,20 @@ const Shop = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("tutti");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [flipped, setFlipped] = useState(false);
+  const [filters, setFilters] = useState<MarketplaceFiltersValue>(defaultFilters);
   const { addItem, itemCount } = useCart();
   const { user } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryTerm = (searchParams.get("q") || "").trim().toLowerCase();
+  const queryTerm = (searchParams.get("q") || "").trim();
   const productIdParam = searchParams.get("p");
+
+  // Sync incoming ?q= into filters once
+  useEffect(() => {
+    if (queryTerm && queryTerm !== filters.q) setFilters((f) => ({ ...f, q: queryTerm }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryTerm]);
 
   const openProduct = (p: Product) => {
     setFlipped(false);
@@ -103,16 +112,21 @@ const Shop = () => {
   });
 
   const featuredProducts = products.filter((p) => p.is_featured);
-  const byCategory =
-    activeCategory === "tutti"
-      ? products
-      : products.filter((p) => p.category === activeCategory);
-  const filtered = queryTerm
-    ? byCategory.filter((p) => {
-        const hay = `${p.name} ${p.description ?? ""}`.toLowerCase();
-        return hay.includes(queryTerm);
-      })
-    : byCategory;
+  const byCategory = activeCategory === "tutti"
+    ? products
+    : products.filter((p) => p.category === activeCategory);
+
+  // Genres derived from current category scope
+  const genres = useMemo(() => {
+    const map = new Map<string, number>();
+    byCategory.forEach((p) => {
+      const g = (p.genre || "").trim().toUpperCase();
+      if (g) map.set(g, (map.get(g) || 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
+  }, [byCategory]);
+
+  const filtered = useMemo(() => applyFilters(byCategory, filters), [byCategory, filters]);
 
   // Apri automaticamente il prodotto se arriviamo con ?p=<id>
   useEffect(() => {
@@ -182,13 +196,13 @@ const Shop = () => {
           </Button>
         </motion.div>
 
-        {/* Filters */}
-        <div className="flex items-center gap-3 mb-10 flex-wrap">
+        {/* Category tabs */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
           <Filter className="h-4 w-4 text-muted-foreground" />
           {categories.map((cat) => (
             <button
               key={cat.value}
-              onClick={() => setActiveCategory(cat.value)}
+              onClick={() => { setActiveCategory(cat.value); setFilters((f) => ({ ...f, genre: "ALL" })); }}
               className={`text-xs tracking-[0.2em] font-mono px-4 py-2 border transition-all ${
                 activeCategory === cat.value
                   ? "border-primary bg-primary text-primary-foreground"
@@ -199,15 +213,33 @@ const Shop = () => {
             </button>
           ))}
         </div>
+      </section>
 
-        {queryTerm && (
-          <div className="mb-8 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
-            <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span>
-            <span className="text-xs font-mono text-primary font-bold">"{queryTerm}"</span>
+      {/* Marketplace search/filters bar (same as Catalogo) */}
+      <MarketplaceFilters
+        value={filters}
+        onChange={(next) => {
+          setFilters(next);
+          // keep ?q in URL synced
+          const sp = new URLSearchParams(searchParams);
+          if (next.q) sp.set("q", next.q); else sp.delete("q");
+          setSearchParams(sp, { replace: true });
+        }}
+        genres={genres}
+        totalCount={byCategory.length}
+        allLabel="TUTTI"
+        showGenres={activeCategory === "vinili" || activeCategory === "tutti"}
+      />
+
+      <section className="container mx-auto px-4 md:px-8 py-8">
+        {(filters.q || filters.genre !== "ALL") && (
+          <div className="mb-6 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
+            {filters.q && <><span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span><span className="text-xs font-mono text-primary font-bold">"{filters.q}"</span></>}
+            {filters.genre !== "ALL" && <span className="text-[10px] tracking-[0.25em] font-mono text-primary">· {filters.genre}</span>}
             <span className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground ml-auto">
               {filtered.length} {filtered.length === 1 ? "RISULTATO" : "RISULTATI"}
             </span>
-            <button onClick={clearSearch} className="text-muted-foreground hover:text-foreground" aria-label="Pulisci ricerca">
+            <button onClick={() => { setFilters(defaultFilters); const sp = new URLSearchParams(searchParams); sp.delete("q"); setSearchParams(sp, { replace: true }); }} className="text-muted-foreground hover:text-foreground" aria-label="Azzera filtri">
               <X className="h-4 w-4" />
             </button>
           </div>
