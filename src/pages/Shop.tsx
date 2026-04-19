@@ -157,9 +157,16 @@ const Shop = () => {
     addItem(id);
   };
 
-  const getImage = (imageUrl: string | null) => {
-    if (!imageUrl) return vinyl1;
-    return fallbackImages[imageUrl] || imageUrl;
+  // Cache-bust uploaded images using updated_at, so freshly replaced covers don't show stale browser cache
+  const withVersion = (url: string, updatedAt?: string) => {
+    if (!updatedAt) return url;
+    const v = new Date(updatedAt).getTime();
+    return url.includes("?") ? `${url}&v=${v}` : `${url}?v=${v}`;
+  };
+
+  const getImage = (imageUrl: string | null, updatedAt?: string) => {
+    if (!imageUrl) return "/shop/vinyl-placeholder-1.jpg";
+    return withVersion(imageUrl, updatedAt);
   };
 
   const getCategoryLabel = (cat: string) => {
