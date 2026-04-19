@@ -17,6 +17,16 @@ const translations: Record<string, Record<Lang, string>> = {
   "nav.contatti": { it: "CONTATTI", en: "CONTACT" },
   "nav.esci": { it: "ESCI", en: "LOGOUT" },
   "nav.accedi": { it: "ACCEDI", en: "LOGIN" },
+  "nav.cercaVinili": { it: "CERCA VINILI...", en: "SEARCH VINYL..." },
+
+  // Index - Storia & Team
+  "index.storiaTitle": { it: "LA NOSTRA STORIA IN", en: "OUR STORY IN" },
+  "index.storiaImmagini": { it: "IMMAGINI", en: "PICTURES" },
+  "index.storiaSubtitle": { it: "MOMENTI · PERSONE · SUONI", en: "MOMENTS · PEOPLE · SOUNDS" },
+  "index.teamTitle": { it: "IL NOSTRO", en: "OUR" },
+  "index.teamWord": { it: "TEAM", en: "TEAM" },
+  "index.teamSubtitle": { it: "LE FACCE DIETRO IL SUONO", en: "THE FACES BEHIND THE SOUND" },
+  "index.photoSlot": { it: "FOTO IN ARRIVO", en: "PHOTO COMING SOON" },
 
   // Footer
   "footer.navigazione": { it: "NAVIGAZIONE", en: "NAVIGATION" },
