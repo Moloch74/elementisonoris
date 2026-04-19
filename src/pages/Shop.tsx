@@ -13,21 +13,6 @@ import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFilte
 
 type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
 
-const fallbackImages: Record<string, string> = {
-  "/shop/vinyl-placeholder-1.jpg": vinyl1,
-  "/shop/vinyl-placeholder-2.jpg": vinyl2,
-  "/shop/vinyl-placeholder-3.jpg": vinyl3,
-  "/shop/vinyl-placeholder-4.jpg": vinyl4,
-  "/shop/streetwear-placeholder-1.jpg": streetwear1,
-  "/shop/streetwear-placeholder-2.jpg": streetwear2,
-  "/shop/streetwear-placeholder-3.jpg": streetwear3,
-  "/shop/streetwear-placeholder-4.jpg": streetwear4,
-  "/shop/gadget-placeholder-1.jpg": gadget1,
-  "/shop/gadget-placeholder-2.jpg": gadget2,
-  "/shop/gadget-placeholder-3.jpg": gadget3,
-  "/shop/gadget-placeholder-4.jpg": gadget4,
-};
-
 type Product = {
   id: string;
   name: string;
