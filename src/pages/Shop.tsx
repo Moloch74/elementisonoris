@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Filter, Loader2, X, Package, Truck, Star, RotateCw, Music2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LangContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -73,6 +73,9 @@ const Shop = () => {
   const { user } = useAuth();
   const { t } = useLang();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryTerm = (searchParams.get("q") || "").trim().toLowerCase();
+  const productIdParam = searchParams.get("p");
 
   const openProduct = (p: Product) => {
     setFlipped(false);
@@ -100,10 +103,37 @@ const Shop = () => {
   });
 
   const featuredProducts = products.filter((p) => p.is_featured);
-  const filtered =
+  const byCategory =
     activeCategory === "tutti"
       ? products
       : products.filter((p) => p.category === activeCategory);
+  const filtered = queryTerm
+    ? byCategory.filter((p) => {
+        const hay = `${p.name} ${p.description ?? ""}`.toLowerCase();
+        return hay.includes(queryTerm);
+      })
+    : byCategory;
+
+  // Apri automaticamente il prodotto se arriviamo con ?p=<id>
+  useEffect(() => {
+    if (!productIdParam || !products.length) return;
+    const found = products.find((p) => p.id === productIdParam);
+    if (found) {
+      setFlipped(false);
+      setSelectedProduct(found);
+    }
+    // Pulisci il param senza ricaricare
+    const next = new URLSearchParams(searchParams);
+    next.delete("p");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productIdParam, products]);
+
+  const clearSearch = () => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("q");
+    setSearchParams(next, { replace: true });
+  };
 
   const handleAddToCart = (id: string) => {
     if (!user) {
@@ -169,6 +199,19 @@ const Shop = () => {
             </button>
           ))}
         </div>
+
+        {queryTerm && (
+          <div className="mb-8 flex items-center gap-3 border border-primary/40 bg-primary/5 px-4 py-3">
+            <span className="text-[10px] tracking-[0.25em] font-mono text-muted-foreground">RICERCA:</span>
+            <span className="text-xs font-mono text-primary font-bold">"{queryTerm}"</span>
+            <span className="text-[10px] tracking-[0.2em] font-mono text-muted-foreground ml-auto">
+              {filtered.length} {filtered.length === 1 ? "RISULTATO" : "RISULTATI"}
+            </span>
+            <button onClick={clearSearch} className="text-muted-foreground hover:text-foreground" aria-label="Pulisci ricerca">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        )}
 
         {/* Featured Section */}
         {!isLoading && featuredProducts.length > 0 && (
