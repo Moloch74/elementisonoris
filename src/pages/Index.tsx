@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, MapPin, Clock, Phone, Image as ImageIcon, User } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { useLang } from "@/contexts/LangContext";
 import heroImg from "@/assets/hero-rave.jpg";
 import undergroundShop from "@/assets/underground-shop.jpg";
@@ -41,12 +43,41 @@ const Index = () => {
     { quote: t("index.quote3"), author: "Luca P.", role: t("index.role.organizer") },
   ];
 
-  const teamMembers = [
+  const { data: dbTeam = [] } = useQuery({
+    queryKey: ["public-team"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id,name,role,bio,image_url,sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: dbGallery = [] } = useQuery({
+    queryKey: ["public-gallery"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("gallery_images")
+        .select("id,image_url,caption,sort_order")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const placeholderTeam = [
     { name: "NOME COGNOME", role: "FOUNDER / SELECTOR" },
     { name: "NOME COGNOME", role: "BUYER VINYL" },
     { name: "NOME COGNOME", role: "STREETWEAR / DESIGN" },
     { name: "NOME COGNOME", role: "EVENTS / COMMUNITY" },
   ];
+  const teamMembers = dbTeam.length > 0
+    ? dbTeam.map((m) => ({ name: m.name, role: m.role, image_url: m.image_url }))
+    : placeholderTeam.map((m) => ({ ...m, image_url: null as string | null }));
 
   return (
     <div className="relative">
