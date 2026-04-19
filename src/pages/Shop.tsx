@@ -11,35 +11,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
 
-import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
-import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
-import vinyl3 from "@/assets/shop/vinyl-placeholder-3.jpg";
-import vinyl4 from "@/assets/shop/vinyl-placeholder-4.jpg";
-import streetwear1 from "@/assets/shop/streetwear-placeholder-1.jpg";
-import streetwear2 from "@/assets/shop/streetwear-placeholder-2.jpg";
-import streetwear3 from "@/assets/shop/streetwear-placeholder-3.jpg";
-import streetwear4 from "@/assets/shop/streetwear-placeholder-4.jpg";
-import gadget1 from "@/assets/shop/gadget-placeholder-1.jpg";
-import gadget2 from "@/assets/shop/gadget-placeholder-2.jpg";
-import gadget3 from "@/assets/shop/gadget-placeholder-3.jpg";
-import gadget4 from "@/assets/shop/gadget-placeholder-4.jpg";
-
 type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
-
-const fallbackImages: Record<string, string> = {
-  "/shop/vinyl-placeholder-1.jpg": vinyl1,
-  "/shop/vinyl-placeholder-2.jpg": vinyl2,
-  "/shop/vinyl-placeholder-3.jpg": vinyl3,
-  "/shop/vinyl-placeholder-4.jpg": vinyl4,
-  "/shop/streetwear-placeholder-1.jpg": streetwear1,
-  "/shop/streetwear-placeholder-2.jpg": streetwear2,
-  "/shop/streetwear-placeholder-3.jpg": streetwear3,
-  "/shop/streetwear-placeholder-4.jpg": streetwear4,
-  "/shop/gadget-placeholder-1.jpg": gadget1,
-  "/shop/gadget-placeholder-2.jpg": gadget2,
-  "/shop/gadget-placeholder-3.jpg": gadget3,
-  "/shop/gadget-placeholder-4.jpg": gadget4,
-};
 
 type Product = {
   id: string;
@@ -157,9 +129,16 @@ const Shop = () => {
     addItem(id);
   };
 
-  const getImage = (imageUrl: string | null) => {
-    if (!imageUrl) return vinyl1;
-    return fallbackImages[imageUrl] || imageUrl;
+  // Cache-bust uploaded images using updated_at, so freshly replaced covers don't show stale browser cache
+  const withVersion = (url: string, updatedAt?: string) => {
+    if (!updatedAt) return url;
+    const v = new Date(updatedAt).getTime();
+    return url.includes("?") ? `${url}&v=${v}` : `${url}?v=${v}`;
+  };
+
+  const getImage = (imageUrl: string | null, updatedAt?: string) => {
+    if (!imageUrl) return "/shop/vinyl-placeholder-1.jpg";
+    return withVersion(imageUrl, updatedAt);
   };
 
   const getCategoryLabel = (cat: string) => {
@@ -267,7 +246,7 @@ const Shop = () => {
                     <Star className="h-4 w-4 text-primary fill-primary" />
                   </div>
                   <div className="relative aspect-square overflow-hidden">
-                    <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                     )}
@@ -312,7 +291,7 @@ const Shop = () => {
                 onClick={() => openProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
-                  <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {product.badge && (
                     <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                   )}
@@ -364,8 +343,8 @@ const Shop = () => {
               </button>
               {(() => {
                 const meta = getMeta(selectedProduct);
-                const frontImg = getImage(selectedProduct.image_url);
-                const backImg = meta.backUrl || frontImg;
+                const frontImg = getImage(selectedProduct.image_url, selectedProduct.updated_at);
+                const backImg = meta.backUrl ? withVersion(meta.backUrl, selectedProduct.updated_at) : frontImg;
                 return (
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Image side with flip */}

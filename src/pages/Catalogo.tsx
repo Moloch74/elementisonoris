@@ -26,6 +26,14 @@ type Vinyl = {
   is_featured: boolean;
   genre: string | null;
   created_at: string;
+  updated_at: string;
+};
+
+// Cache-bust uploaded images so freshly replaced covers don't show stale browser cache
+const withVersion = (url: string, updatedAt?: string) => {
+  if (!url || !updatedAt) return url;
+  const v = new Date(updatedAt).getTime();
+  return url.includes("?") ? `${url}&v=${v}` : `${url}?v=${v}`;
 };
 
 const fadeUp = {
@@ -112,7 +120,7 @@ const Catalogo = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
-        .select("id,name,description,price,stock,badge,image_url,is_featured,genre,created_at")
+        .select("id,name,description,price,stock,badge,image_url,is_featured,genre,created_at,updated_at")
         .eq("is_active", true)
         .eq("category", "vinili")
         .order("created_at", { ascending: false })
@@ -222,7 +230,7 @@ const Catalogo = () => {
                 transition={{ delay: 0.2 + i * 0.1, duration: 0.8 }}
                 className={`hidden md:block aspect-square overflow-hidden border border-border ${i % 2 === 0 ? "translate-y-12" : "-translate-y-6"}`}
               >
-                <img src={v.image_url!} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" loading="lazy" />
+                <img src={withVersion(v.image_url!, v.updated_at)} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" loading="lazy" />
               </motion.div>
             ))}
           </div>
@@ -305,7 +313,7 @@ const Catalogo = () => {
                 >
                   <div className="aspect-square overflow-hidden">
                     <img
-                      src={v.image_url!}
+                      src={withVersion(v.image_url!, v.updated_at)}
                       alt={`${v.name} — vinile ${v.genre || ""}`}
                       loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
@@ -378,7 +386,7 @@ const Catalogo = () => {
                   <div className="aspect-square bg-secondary border border-border overflow-hidden flex items-center justify-center mb-3 relative">
                     {v.image_url ? (
                       <img
-                        src={v.image_url}
+                        src={withVersion(v.image_url, v.updated_at)}
                         alt={`${v.name}${v.genre ? ` — vinile ${v.genre.toLowerCase()}` : ""}`}
                         loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
