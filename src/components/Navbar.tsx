@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ShoppingCart, LogOut, User, ShieldCheck, Search } from "lucide-react";
+import { Menu, X, ShoppingCart, LogOut, User, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LangContext";
+import ProductSearch from "@/components/ProductSearch";
 import logoCircular from "@/assets/logo-circular.jpg";
-
-const DISCOGS_SEARCH = "https://www.discogs.com/seller/Elementisonori_Shop/profile?q=";
 
 const LangSwitch = () => {
   const { lang, setLang } = useLang();
@@ -22,7 +21,6 @@ const LangSwitch = () => {
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQ, setSearchQ] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
@@ -31,13 +29,6 @@ const Navbar = () => {
   const { isAdmin } = useAdmin();
 
   const displayName = user?.email?.split("@")[0] || "";
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = searchQ.trim();
-    if (!q) return;
-    window.open(`${DISCOGS_SEARCH}${encodeURIComponent(q)}`, "_blank", "noopener,noreferrer");
-  };
 
   const navItems = [
     { label: t("nav.chiSiamo"), path: "/chi-siamo" },

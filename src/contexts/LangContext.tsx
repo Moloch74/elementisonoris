@@ -18,6 +18,8 @@ const translations: Record<string, Record<Lang, string>> = {
   "nav.esci": { it: "ESCI", en: "LOGOUT" },
   "nav.accedi": { it: "ACCEDI", en: "LOGIN" },
   "nav.cercaVinili": { it: "CERCA VINILI...", en: "SEARCH VINYL..." },
+  "search.noResults": { it: "NESSUN RISULTATO", en: "NO RESULTS" },
+  "search.viewAll": { it: "VEDI TUTTI I RISULTATI", en: "VIEW ALL RESULTS" },
 
   // Index - Storia & Team
   "index.storiaTitle": { it: "LA NOSTRA STORIA IN", en: "OUR STORY IN" },
