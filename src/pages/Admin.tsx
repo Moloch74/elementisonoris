@@ -1117,17 +1117,78 @@ const Admin = () => {
                       <Input value={form.badge} onChange={(e) => setForm({ ...form, badge: e.target.value })} placeholder="es. NEW, LIMITED" className="bg-background border-border font-mono text-sm" />
                     </div>
                   </div>
+                  {/* Foto fronte */}
                   <div>
-                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">IMMAGINE</label>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">FOTO FRONTE *</label>
                     <div className="flex items-center gap-4">
-                      {form.image_url && <img src={form.image_url} alt="" className="w-16 h-16 object-cover border border-border" />}
+                      {form.image_url && <img src={form.image_url} alt="Fronte" className="w-16 h-16 object-cover border border-border" />}
                       <label className="flex-1 border border-dashed border-border hover:border-primary text-muted-foreground hover:text-primary cursor-pointer flex items-center justify-center gap-2 py-4 transition-colors">
                         {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
-                        <span className="text-xs font-mono tracking-wider">{uploading ? "CARICAMENTO..." : "CARICA IMMAGINE"}</span>
+                        <span className="text-xs font-mono tracking-wider">{uploading ? "CARICAMENTO..." : (form.image_url ? "SOSTITUISCI FRONTE" : "CARICA FRONTE")}</span>
                         <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
                       </label>
                     </div>
-                    {form.image_url && <Input value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} className="bg-background border-border font-mono text-xs mt-2" placeholder="URL immagine" />}
+                  </div>
+
+                  {/* Modalità foto */}
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-2 block">MODALITÀ FOTO</label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, has_back: false })}
+                        className={`flex-1 text-[10px] tracking-[0.15em] font-mono py-2 border transition-all ${!form.has_back ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-foreground"}`}
+                      >
+                        SOLO FRONTE
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, has_back: true })}
+                        className={`flex-1 text-[10px] tracking-[0.15em] font-mono py-2 border transition-all ${form.has_back ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-foreground"}`}
+                      >
+                        FRONTE + RETRO
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Foto retro */}
+                  {form.has_back && (
+                    <div>
+                      <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">FOTO RETRO</label>
+                      <div className="flex items-center gap-4">
+                        {form.image_back_url && <img src={form.image_back_url} alt="Retro" className="w-16 h-16 object-cover border border-border" />}
+                        <label className="flex-1 border border-dashed border-border hover:border-primary text-muted-foreground hover:text-primary cursor-pointer flex items-center justify-center gap-2 py-4 transition-colors">
+                          {uploadingBack ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImageIcon className="h-4 w-4" />}
+                          <span className="text-xs font-mono tracking-wider">{uploadingBack ? "CARICAMENTO..." : (form.image_back_url ? "SOSTITUISCI RETRO" : "CARICA RETRO")}</span>
+                          <input type="file" accept="image/*" className="hidden" onChange={handleBackImageUpload} disabled={uploadingBack} />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Audio preview */}
+                  <div>
+                    <label className="text-xs font-mono tracking-[0.2em] text-muted-foreground mb-1 block">AUDIO PREVIEW (consigliato 30 sec, max 5MB)</label>
+                    <div className="flex items-center gap-4 flex-wrap">
+                      {form.audio_preview_url && (
+                        <audio src={form.audio_preview_url} controls className="h-10 w-44" preload="none" />
+                      )}
+                      <label className="flex-1 min-w-[180px] border border-dashed border-border hover:border-primary text-muted-foreground hover:text-primary cursor-pointer flex items-center justify-center gap-2 py-4 transition-colors">
+                        {uploadingAudio ? <Loader2 className="h-4 w-4 animate-spin" /> : <span className="text-base">🎵</span>}
+                        <span className="text-xs font-mono tracking-wider">{uploadingAudio ? "CARICAMENTO..." : (form.audio_preview_url ? "SOSTITUISCI AUDIO" : "CARICA AUDIO")}</span>
+                        <input type="file" accept="audio/*" className="hidden" onChange={handleAudioUpload} disabled={uploadingAudio} />
+                      </label>
+                      {form.audio_preview_url && (
+                        <button
+                          type="button"
+                          onClick={() => setForm({ ...form, audio_preview_url: "" })}
+                          className="text-muted-foreground hover:text-destructive transition-colors"
+                          title="Rimuovi audio"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-3">
