@@ -103,7 +103,7 @@ const Index = () => {
             {t("hero.subtitle")}
           </motion.p>
           <motion.div className="flex flex-col sm:flex-row gap-4 justify-center" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8, duration: 0.6 }}>
-            <Link to="/marketplace" className="border border-primary text-primary px-8 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+            <Link to="/catalogo" className="border border-primary text-primary px-8 py-3 text-xs tracking-[0.2em] font-mono hover:bg-primary hover:text-primary-foreground transition-all duration-300">
               {t("hero.cta1")}
             </Link>
             <Link to="/chi-siamo" className="border border-foreground/30 text-foreground px-8 py-3 text-xs tracking-[0.2em] font-mono hover:border-foreground transition-all duration-300">
