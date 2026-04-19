@@ -11,19 +11,6 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceFilters, { applyFilters, defaultFilters, type MarketplaceFiltersValue } from "@/components/MarketplaceFilters";
 
-import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
-import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
-import vinyl3 from "@/assets/shop/vinyl-placeholder-3.jpg";
-import vinyl4 from "@/assets/shop/vinyl-placeholder-4.jpg";
-import streetwear1 from "@/assets/shop/streetwear-placeholder-1.jpg";
-import streetwear2 from "@/assets/shop/streetwear-placeholder-2.jpg";
-import streetwear3 from "@/assets/shop/streetwear-placeholder-3.jpg";
-import streetwear4 from "@/assets/shop/streetwear-placeholder-4.jpg";
-import gadget1 from "@/assets/shop/gadget-placeholder-1.jpg";
-import gadget2 from "@/assets/shop/gadget-placeholder-2.jpg";
-import gadget3 from "@/assets/shop/gadget-placeholder-3.jpg";
-import gadget4 from "@/assets/shop/gadget-placeholder-4.jpg";
-
 type Category = "tutti" | "vinili" | "streetwear" | "gadgets";
 
 const fallbackImages: Record<string, string> = {
@@ -274,7 +261,7 @@ const Shop = () => {
                     <Star className="h-4 w-4 text-primary fill-primary" />
                   </div>
                   <div className="relative aspect-square overflow-hidden">
-                    <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     {product.badge && (
                       <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                     )}
@@ -319,7 +306,7 @@ const Shop = () => {
                 onClick={() => openProduct(product)}
               >
                 <div className="relative aspect-square overflow-hidden">
-                  <img src={getImage(product.image_url)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={getImage(product.image_url, product.updated_at)} alt={product.name} loading="lazy" width={512} height={512} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   {product.badge && (
                     <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground text-[10px] tracking-[0.15em] font-mono rounded-none">{product.badge}</Badge>
                   )}
@@ -371,8 +358,8 @@ const Shop = () => {
               </button>
               {(() => {
                 const meta = getMeta(selectedProduct);
-                const frontImg = getImage(selectedProduct.image_url);
-                const backImg = meta.backUrl || frontImg;
+                const frontImg = getImage(selectedProduct.image_url, selectedProduct.updated_at);
+                const backImg = meta.backUrl ? withVersion(meta.backUrl, selectedProduct.updated_at) : frontImg;
                 return (
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Image side with flip */}
