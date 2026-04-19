@@ -275,21 +275,44 @@ const Index = () => {
             <p className="text-muted-foreground text-xs tracking-[0.3em] mt-4 font-mono">{t("index.storiaSubtitle")}</p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <motion.div
-                key={i}
-                className="aspect-square border border-border bg-secondary/40 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 group"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-              >
-                <ImageIcon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
-                <span className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground">
-                  [{String(i + 1).padStart(2, "0")}] {t("index.photoSlot")}
-                </span>
-              </motion.div>
-            ))}
+            {dbGallery.length > 0
+              ? dbGallery.map((img, i) => (
+                  <motion.div
+                    key={img.id}
+                    className="aspect-square border border-border bg-secondary/40 hover:border-primary transition-colors overflow-hidden group relative"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                  >
+                    <img
+                      src={img.image_url}
+                      alt={img.caption || `Foto ${i + 1}`}
+                      loading="lazy"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    {img.caption && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-background/85 backdrop-blur-sm border-t border-border px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-[9px] tracking-[0.2em] font-mono text-foreground line-clamp-1">{img.caption}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                ))
+              : Array.from({ length: 8 }).map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="aspect-square border border-border bg-secondary/40 hover:border-primary transition-colors flex flex-col items-center justify-center gap-2 group"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.05 }}
+                  >
+                    <ImageIcon className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
+                    <span className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground">
+                      [{String(i + 1).padStart(2, "0")}] {t("index.photoSlot")}
+                    </span>
+                  </motion.div>
+                ))}
           </div>
         </div>
       </section>
@@ -313,8 +336,12 @@ const Index = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
               >
-                <div className="aspect-square border border-border bg-secondary/40 flex items-center justify-center mb-4 group-hover:border-primary transition-colors">
-                  <User className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
+                <div className="aspect-square border border-border bg-secondary/40 flex items-center justify-center mb-4 group-hover:border-primary transition-colors overflow-hidden">
+                  {m.image_url ? (
+                    <img src={m.image_url} alt={m.name} loading="lazy" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="h-12 w-12 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1} />
+                  )}
                 </div>
                 <p className="text-[10px] tracking-[0.25em] font-mono text-primary mb-1">[{String(i + 1).padStart(2, "0")}]</p>
                 <h3 className="font-display text-lg font-bold leading-tight">{m.name}</h3>
