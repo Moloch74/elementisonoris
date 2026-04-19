@@ -378,13 +378,13 @@ const Catalogo = () => {
               <p className="text-[10px] font-mono text-muted-foreground">Prova ad azzerare i filtri o cercare su Discogs in fondo alla pagina.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-border">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
               {filtered.map((v, i) => (
                 <motion.button
                   key={v.id}
                   type="button"
                   onClick={() => goProduct(v.id)}
-                  className="bg-background p-4 text-left group hover:bg-secondary/40 transition-colors flex flex-col"
+                  className="bg-background border border-border p-4 text-left group hover:bg-secondary/40 hover:border-primary/40 transition-colors flex flex-col"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: "100px" }}
