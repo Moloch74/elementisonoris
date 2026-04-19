@@ -41,8 +41,23 @@ const Index = () => {
     { quote: t("index.quote3"), author: "Luca P.", role: t("index.role.organizer") },
   ];
 
+  const teamMembers = [
+    { name: "NOME COGNOME", role: "FOUNDER / SELECTOR" },
+    { name: "NOME COGNOME", role: "BUYER VINYL" },
+    { name: "NOME COGNOME", role: "STREETWEAR / DESIGN" },
+    { name: "NOME COGNOME", role: "EVENTS / COMMUNITY" },
+  ];
+
   return (
     <div className="relative">
+      {/* Fixed background — omini characters */}
+      <div
+        className="fixed inset-0 -z-10 bg-fixed bg-center bg-no-repeat bg-cover"
+        style={{ backgroundImage: `url(${ominiBg})` }}
+        aria-hidden="true"
+      />
+      <div className="fixed inset-0 -z-10 bg-background/85" aria-hidden="true" />
+
       {/* Hero */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
