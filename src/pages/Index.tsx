@@ -138,8 +138,11 @@ const Index = () => {
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
               <h2 className="font-display text-5xl md:text-6xl font-bold mb-2">{t("index.sound")}</h2>
               <h2 className="font-display text-5xl md:text-6xl font-bold text-neon mb-8">{t("index.underground")}</h2>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-mono">{t("index.chiSiamoDesc1")}</p>
-              <p className="text-muted-foreground text-sm leading-relaxed mb-8 font-mono">{t("index.chiSiamoDesc2")}</p>
+              <p className="text-foreground text-xs tracking-[0.3em] font-mono mb-4">{t("index.chiSiamoIntro")}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4 font-mono">{t("index.chiSiamoDesc1")}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-4 font-mono">{t("index.chiSiamoDesc2")}</p>
+              <p className="text-muted-foreground text-sm leading-relaxed mb-6 font-mono">{t("index.chiSiamoDesc3")}</p>
+              <p className="text-neon font-display text-lg tracking-wider mb-8">{t("index.chiSiamoTagline")}</p>
               <div className="flex gap-8 mb-8">
                 <div><span className="font-display text-3xl font-bold">5K+</span><p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">{t("index.vinili")}</p></div>
                 <div><span className="font-display text-3xl font-bold">10+</span><p className="text-muted-foreground text-[10px] tracking-[0.2em] mt-1">{t("index.anni")}</p></div>
