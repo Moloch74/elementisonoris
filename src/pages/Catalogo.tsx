@@ -271,15 +271,15 @@ const Catalogo = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+            <div className="flex-1 bg-background/90 px-4 py-3 text-center">
               <p className="font-display text-2xl md:text-3xl font-bold text-primary">{vinyls.length}</p>
               <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">VINILI</p>
             </div>
-            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+            <div className="flex-1 bg-background/90 px-4 py-3 text-center">
               <p className="font-display text-2xl md:text-3xl font-bold text-primary">{genres.length}</p>
               <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">GENERI</p>
             </div>
-            <div className="flex-1 bg-background/80 backdrop-blur px-4 py-3 text-center">
+            <div className="flex-1 bg-background/90 px-4 py-3 text-center">
               <p className="font-display text-2xl md:text-3xl font-bold text-primary">{vinyls.filter((v) => v.is_featured).length}</p>
               <p className="text-[9px] tracking-[0.25em] font-mono text-muted-foreground mt-1">IN EVIDENZA</p>
             </div>
