@@ -10,9 +10,9 @@ import djVinyl from "@/assets/dj-vinyl.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
 import teamShop from "@/assets/team-shop.jpg";
 import teamDj from "@/assets/team-dj.jpg";
-import willoAsset from "@/assets/willo.jpg.asset.json";
-import matteoAsset from "@/assets/matteo.jpg.asset.json";
-import willoMatteoAsset from "@/assets/willo-matteo.jpg.asset.json";
+import willoPhoto from "@/assets/team-willo.jpg";
+import matteoPhoto from "@/assets/team-matteo.jpg";
+import willoMatteoPhoto from "@/assets/team-willo-matteo.jpg";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
 
@@ -103,8 +103,8 @@ const ChiSiamo = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-6">
             {[
-              { name: "WILLO", img: willoAsset.url },
-              { name: "MATTEO", img: matteoAsset.url },
+              { name: "WILLO", img: willoPhoto },
+              { name: "MATTEO", img: matteoPhoto },
             ].map((m, i) => (
               <motion.div
                 key={m.name}
@@ -118,7 +118,7 @@ const ChiSiamo = () => {
                   <img
                     src={m.img}
                     alt={m.name}
-                    className="w-full aspect-[3/4] object-contain group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                 </div>
@@ -137,9 +137,9 @@ const ChiSiamo = () => {
           >
             <div className="overflow-hidden group bg-muted/20">
               <img
-                src={willoMatteoAsset.url}
+                src={willoMatteoPhoto}
                 alt="Willo e Matteo — Elementi Sonori"
-                className="w-full aspect-[19/20] object-contain group-hover:scale-105 transition-transform duration-700"
+                className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
