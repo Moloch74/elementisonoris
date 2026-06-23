@@ -93,60 +93,43 @@ const ChiSiamo = () => {
       </section>
 
       {/* Il Team — Willo & Matteo */}
-      <section className="py-24 border-t border-border">
+      <section className="py-24 md:py-32 border-t border-border">
         <div className="container mx-auto px-4 md:px-8">
-          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">CREW</p>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">IL <span className="text-neon">TEAM</span></h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">I RAGAZZI DEL NEGOZIO</p>
+          <motion.div className="text-center mb-16" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <h2 className="font-display text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight">IL NOSTRO <span className="text-neon">TEAM</span></h2>
+            <p className="text-muted-foreground text-xs tracking-[0.35em] font-mono mt-4 uppercase">Le facce dietro il suono</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0">
             {[
-              { name: "WILLO", img: willoPhoto },
-              { name: "MATTEO", img: matteoPhoto },
+              { num: "[01]", name: "WILLO", role: "FOUNDER / SELECTOR", img: willoPhoto },
+              { num: "[02]", name: "MATTEO", role: "BUYER VINYL", img: matteoPhoto },
+              { num: "[03]", name: "WILLO & MATTEO", role: "EVENTS / COMMUNITY", img: willoMatteoPhoto },
             ].map((m, i) => (
               <motion.div
                 key={m.name}
-                className="text-center"
+                className="group border-r border-border last:border-r-0 px-4 md:px-6"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.12 } } }}
               >
-                <div className="overflow-hidden group bg-muted/20">
+                <div className="overflow-hidden border border-border/60 bg-muted/10">
                   <img
                     src={m.img}
                     alt={m.name}
-                    className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
+                    className="w-full aspect-[3/4] object-contain group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                 </div>
-                <p className="font-display text-2xl md:text-3xl font-bold mt-4 tracking-[0.2em]">{m.name}</p>
-                <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mt-1">ELEMENTI SONORI</p>
+                <div className="mt-5 pb-8">
+                  <p className="text-muted-foreground text-[10px] tracking-[0.25em] font-mono mb-2">{m.num}</p>
+                  <p className="font-display text-xl md:text-2xl font-bold tracking-wide uppercase">{m.name}</p>
+                  <p className="text-muted-foreground text-[10px] tracking-[0.25em] font-mono mt-1 uppercase">{m.role}</p>
+                </div>
               </motion.div>
             ))}
           </div>
-
-          <motion.div
-            className="max-w-2xl mx-auto"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-          >
-            <div className="overflow-hidden group bg-muted/20">
-              <img
-                src={willoMatteoPhoto}
-                alt="Willo e Matteo — Elementi Sonori"
-                className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
-                loading="lazy"
-              />
-            </div>
-            <p className="text-center font-display text-xl md:text-2xl font-bold mt-4 tracking-[0.2em]">
-              WILLO <span className="text-neon">&</span> MATTEO
-            </p>
-          </motion.div>
         </div>
       </section>
 
