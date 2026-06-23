@@ -6,8 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import heroRave from "@/assets/hero-rave.jpg";
 import warehouseRave from "@/assets/warehouse-rave.jpg";
-import dancefloor from "@/assets/dancefloor.jpg";
-import storeInterior from "@/assets/store-interior.jpg";
+import eventShopDj from "@/assets/event-shop-dj.jpg";
+import eventShopCrowd from "@/assets/event-shop-crowd.jpg";
+import eventShopDigging from "@/assets/event-shop-digging.jpg";
+import eventShopWide from "@/assets/event-shop-wide.jpg";
 import FloatingSticker from "@/components/FloatingSticker";
 import MarqueeStrip from "@/components/MarqueeStrip";
 
