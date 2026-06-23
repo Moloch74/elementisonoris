@@ -6,8 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import heroRave from "@/assets/hero-rave.jpg";
 import warehouseRave from "@/assets/warehouse-rave.jpg";
-import dancefloor from "@/assets/dancefloor.jpg";
-import storeInterior from "@/assets/store-interior.jpg";
+import eventShopDj from "@/assets/event-shop-dj.jpg";
+import eventShopCrowd from "@/assets/event-shop-crowd.jpg";
+import eventShopDigging from "@/assets/event-shop-digging.jpg";
+import eventShopWide from "@/assets/event-shop-wide.jpg";
 import FloatingSticker from "@/components/FloatingSticker";
 import MarqueeStrip from "@/components/MarqueeStrip";
 
@@ -88,7 +90,7 @@ const Eventi = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
               <motion.div className="lg:col-span-2 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-                <img src={dancefloor} alt="Evento" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1280} height={960} />
+                <img src={eventShopDj} alt="DJ set in-store" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1024} height={1024} />
                 <img src={heroRave} alt="Rave" className="absolute -bottom-8 right-0 w-2/3 aspect-video object-cover border-4 border-background" loading="lazy" width={1920} height={1080} />
               </motion.div>
               <div className="lg:col-span-3">
@@ -126,7 +128,7 @@ const Eventi = () => {
             <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.momentiScena")}</p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[dancefloor, heroRave, warehouseRave, storeInterior, warehouseRave, dancefloor, heroRave, storeInterior].map((img, i) => (
+            {[eventShopWide, eventShopDj, eventShopCrowd, eventShopDigging, heroRave, eventShopCrowd, warehouseRave, eventShopWide].map((img, i) => (
               <motion.div key={i} className="overflow-hidden" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.4, delay: i * 0.06 } } }}>
                 <img src={img} alt="" className="w-full aspect-square object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
               </motion.div>
