@@ -129,7 +129,7 @@ const ChiSiamo = () => {
           </div>
 
           <motion.div
-            className="max-w-3xl mx-auto"
+            className="max-w-2xl mx-auto"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
