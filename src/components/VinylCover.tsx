@@ -25,6 +25,7 @@ const VinylCover = ({
   loading = "lazy",
   width = 512,
   height = 512,
+  side = "front",
 }: Props) => {
   const [errored, setErrored] = useState(false);
 
@@ -41,7 +42,7 @@ const VinylCover = ({
         role="img"
         aria-label={alt || name}
       >
-        <FallbackCover name={name} />
+        {side === "back" ? <FallbackVinylDisc name={name} /> : <FallbackCover name={name} />}
       </div>
     );
   }
