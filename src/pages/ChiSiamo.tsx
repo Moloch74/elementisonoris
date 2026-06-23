@@ -8,6 +8,8 @@ import murales from "@/assets/murales.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
 import djVinyl from "@/assets/dj-vinyl.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
+import teamShop from "@/assets/team-shop.jpg";
+import teamDj from "@/assets/team-dj.jpg";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
 
