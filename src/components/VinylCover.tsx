@@ -8,6 +8,8 @@ type Props = {
   loading?: "lazy" | "eager";
   width?: number;
   height?: number;
+  /** Which side of the vinyl to draw when no `src` is available. */
+  side?: "front" | "back";
 };
 
 /**
