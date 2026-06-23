@@ -118,7 +118,7 @@ const ChiSiamo = () => {
                   <img
                     src={m.img}
                     alt={m.name}
-                    className="w-full aspect-[14/15] object-contain group-hover:scale-105 transition-transform duration-700"
+                    className="w-full aspect-[3/4] object-contain group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                   />
                 </div>
@@ -139,7 +139,7 @@ const ChiSiamo = () => {
               <img
                 src={willoMatteoAsset.url}
                 alt="Willo e Matteo — Elementi Sonori"
-                className="w-full aspect-[5/7] object-contain group-hover:scale-105 transition-transform duration-700"
+                className="w-full aspect-[19/20] object-contain group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
