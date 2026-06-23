@@ -8,6 +8,8 @@ type Props = {
   loading?: "lazy" | "eager";
   width?: number;
   height?: number;
+  /** Which side of the vinyl to draw when no `src` is available. */
+  side?: "front" | "back";
 };
 
 /**
@@ -23,6 +25,7 @@ const VinylCover = ({
   loading = "lazy",
   width = 512,
   height = 512,
+  side = "front",
 }: Props) => {
   const [errored, setErrored] = useState(false);
 
@@ -39,7 +42,7 @@ const VinylCover = ({
         role="img"
         aria-label={alt || name}
       >
-        <FallbackCover name={name} />
+        {side === "back" ? <FallbackVinylDisc name={name} /> : <FallbackCover name={name} />}
       </div>
     );
   }
@@ -162,4 +165,73 @@ const FallbackCover = ({ name }: { name: string }) => {
   );
 };
 
+/** Vinyl disc with center label — used as the "back" fallback when no retro image is uploaded. */
+const FallbackVinylDisc = ({ name }: { name: string }) => {
+  const label = (name || "ELEMENTI SONORI").trim().toUpperCase().slice(0, 18);
+  return (
+    <svg
+      viewBox="0 0 512 512"
+      xmlns="http://www.w3.org/2000/svg"
+      preserveAspectRatio="xMidYMid slice"
+      style={{ width: "100%", height: "100%", display: "block", background: "#000" }}
+    >
+      <defs>
+        <radialGradient id="discShine" cx="35%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#2a2a2a" />
+          <stop offset="60%" stopColor="#0a0a0a" />
+          <stop offset="100%" stopColor="#000" />
+        </radialGradient>
+        <radialGradient id="discVignette" cx="50%" cy="50%" r="70%">
+          <stop offset="70%" stopColor="#000" stopOpacity="0" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.85" />
+        </radialGradient>
+      </defs>
+
+      <rect width="512" height="512" fill="#050505" />
+
+      {/* disc */}
+      <circle cx="256" cy="256" r="240" fill="url(#discShine)" />
+
+      {/* grooves */}
+      <g stroke="#1a1a1a" strokeWidth="0.6" fill="none" opacity="0.9">
+        {Array.from({ length: 60 }).map((_, i) => (
+          <circle key={i} cx="256" cy="256" r={90 + i * 2.4} />
+        ))}
+      </g>
+      <g stroke="#fff" strokeOpacity="0.04" strokeWidth="0.4" fill="none">
+        {Array.from({ length: 30 }).map((_, i) => (
+          <circle key={i} cx="256" cy="256" r={95 + i * 4.8} />
+        ))}
+      </g>
+
+      {/* center label */}
+      <circle cx="256" cy="256" r="84" fill="#0f0f0f" stroke="#1f1f1f" />
+      <circle cx="256" cy="256" r="84" fill="none" stroke="#fff" strokeOpacity="0.15" />
+      <text
+        x="256"
+        y="248"
+        textAnchor="middle"
+        fill="#fff"
+        opacity="0.7"
+        style={{ fontFamily: "ui-monospace, monospace", fontSize: 9, letterSpacing: 3 }}
+      >
+        ELEMENTI SONORI
+      </text>
+      <text
+        x="256"
+        y="270"
+        textAnchor="middle"
+        fill="#fff"
+        style={{ fontFamily: "ui-sans-serif, system-ui, sans-serif", fontSize: 12, letterSpacing: 2, fontWeight: 700 }}
+      >
+        {label}
+      </text>
+      <circle cx="256" cy="256" r="4" fill="#000" />
+
+      <rect width="512" height="512" fill="url(#discVignette)" />
+    </svg>
+  );
+};
+
 export default VinylCover;
+

@@ -345,7 +345,10 @@ const Shop = () => {
               {(() => {
                 const meta = getMeta(selectedProduct);
                 const frontImg = getImage(selectedProduct.image_url, selectedProduct.updated_at);
-                const backImg = meta.backUrl ? withVersion(meta.backUrl, selectedProduct.updated_at) : frontImg;
+                const backImg = meta.backUrl ? withVersion(meta.backUrl, selectedProduct.updated_at) : null;
+                const isVinyl = selectedProduct.category === "vinili";
+                // Vinili always show a back side (disc fallback) even without uploaded retro
+                const showFlip = isVinyl || meta.hasBack;
                 return (
               <div className="grid grid-cols-1 md:grid-cols-2">
                 {/* Image side with flip */}
@@ -361,6 +364,7 @@ const Shop = () => {
                         src={frontImg}
                         name={selectedProduct.name}
                         alt={`${selectedProduct.name} — fronte`}
+                        side="front"
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -369,12 +373,13 @@ const Shop = () => {
                         src={backImg}
                         name={selectedProduct.name}
                         alt={`${selectedProduct.name} — retro`}
+                        side="back"
                         className="w-full h-full object-cover"
                       />
                     </div>
                   </motion.div>
 
-                  {meta.hasBack && (
+                  {showFlip && (
                     <button
                       type="button"
                       onClick={() => setFlipped((v) => !v)}
@@ -385,12 +390,13 @@ const Shop = () => {
                     </button>
                   )}
 
-                  {meta.hasBack && (
+                  {showFlip && (
                     <span className="absolute top-3 left-3 z-20 bg-background/90 border border-border px-2 py-1 text-[9px] tracking-[0.2em] font-mono text-muted-foreground backdrop-blur-sm">
                       {flipped ? "B-SIDE" : "A-SIDE"}
                     </span>
                   )}
                 </div>
+
 
                 <div className="p-6 md:p-8 flex flex-col justify-between">
                   <div className="space-y-4">
