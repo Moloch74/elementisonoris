@@ -139,7 +139,7 @@ const ChiSiamo = () => {
               <img
                 src={willoMatteoAsset.url}
                 alt="Willo e Matteo — Elementi Sonori"
-                className="w-full aspect-[5/7] object-contain group-hover:scale-105 transition-transform duration-700"
+                className="w-full aspect-[19/20] object-contain group-hover:scale-105 transition-transform duration-700"
                 loading="lazy"
               />
             </div>
