@@ -167,33 +167,6 @@ const ChiSiamo = () => {
         </div>
       </section>
 
-      {/* Team */}
-      <section className="py-24 border-t border-border">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">
-              {t("chiSiamo.teamTitle")} <span className="text-neon">{t("chiSiamo.teamHighlight")}</span>
-            </h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono mb-6">{t("chiSiamo.teamSubtitle")}</p>
-            <p className="text-foreground text-sm font-mono max-w-2xl mx-auto leading-relaxed">{t("chiSiamo.teamDesc")}</p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-5xl mx-auto">
-            <motion.div className="relative overflow-hidden group" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-              <img src={teamShop} alt="Team Elementi Sonori in negozio" className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" width={1200} height={1500} />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent p-4">
-                <p className="text-foreground text-[10px] tracking-[0.25em] font-mono">{t("chiSiamo.teamCaptionShop")}</p>
-              </div>
-            </motion.div>
-            <motion.div className="relative overflow-hidden group" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.6, delay: 0.1 } } }}>
-              <img src={teamDj} alt="Team Elementi Sonori dietro le casse" className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" width={1200} height={1500} />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/40 to-transparent p-4">
-                <p className="text-foreground text-[10px] tracking-[0.25em] font-mono">{t("chiSiamo.teamCaptionDj")}</p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* Timeline */}
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8 max-w-3xl">
