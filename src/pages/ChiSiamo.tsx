@@ -10,6 +10,9 @@ import djVinyl from "@/assets/dj-vinyl.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
 import teamShop from "@/assets/team-shop.jpg";
 import teamDj from "@/assets/team-dj.jpg";
+import willoAsset from "@/assets/willo.jpg.asset.json";
+import matteoAsset from "@/assets/matteo.jpg.asset.json";
+import willoMatteoAsset from "@/assets/willo-matteo.jpg.asset.json";
 import MarqueeStrip from "@/components/MarqueeStrip";
 import FloatingSticker from "@/components/FloatingSticker";
 
