@@ -11,38 +11,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-import vinyl1 from "@/assets/shop/vinyl-placeholder-1.jpg";
-import vinyl2 from "@/assets/shop/vinyl-placeholder-2.jpg";
-import vinyl3 from "@/assets/shop/vinyl-placeholder-3.jpg";
-import vinyl4 from "@/assets/shop/vinyl-placeholder-4.jpg";
-import streetwear1 from "@/assets/shop/streetwear-placeholder-1.jpg";
-import streetwear2 from "@/assets/shop/streetwear-placeholder-2.jpg";
-import streetwear3 from "@/assets/shop/streetwear-placeholder-3.jpg";
-import streetwear4 from "@/assets/shop/streetwear-placeholder-4.jpg";
-import gadget1 from "@/assets/shop/gadget-placeholder-1.jpg";
-import gadget2 from "@/assets/shop/gadget-placeholder-2.jpg";
-import gadget3 from "@/assets/shop/gadget-placeholder-3.jpg";
-import gadget4 from "@/assets/shop/gadget-placeholder-4.jpg";
+import VinylCover from "@/components/VinylCover";
 
-const fallbackImages: Record<string, string> = {
-  "/shop/vinyl-placeholder-1.jpg": vinyl1,
-  "/shop/vinyl-placeholder-2.jpg": vinyl2,
-  "/shop/vinyl-placeholder-3.jpg": vinyl3,
-  "/shop/vinyl-placeholder-4.jpg": vinyl4,
-  "/shop/streetwear-placeholder-1.jpg": streetwear1,
-  "/shop/streetwear-placeholder-2.jpg": streetwear2,
-  "/shop/streetwear-placeholder-3.jpg": streetwear3,
-  "/shop/streetwear-placeholder-4.jpg": streetwear4,
-  "/shop/gadget-placeholder-1.jpg": gadget1,
-  "/shop/gadget-placeholder-2.jpg": gadget2,
-  "/shop/gadget-placeholder-3.jpg": gadget3,
-  "/shop/gadget-placeholder-4.jpg": gadget4,
-};
-
-const getImage = (url: string | null) => {
-  if (!url) return vinyl1;
-  return fallbackImages[url] || url;
-};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
