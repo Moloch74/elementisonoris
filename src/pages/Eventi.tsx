@@ -128,7 +128,7 @@ const Eventi = () => {
             <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">{t("eventi.momentiScena")}</p>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-            {[dancefloor, heroRave, warehouseRave, storeInterior, warehouseRave, dancefloor, heroRave, storeInterior].map((img, i) => (
+            {[eventShopWide, eventShopDj, eventShopCrowd, eventShopDigging, heroRave, eventShopCrowd, warehouseRave, eventShopWide].map((img, i) => (
               <motion.div key={i} className="overflow-hidden" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.4, delay: i * 0.06 } } }}>
                 <img src={img} alt="" className="w-full aspect-square object-cover hover:scale-105 transition-transform duration-500" loading="lazy" />
               </motion.div>
