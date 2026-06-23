@@ -8,8 +8,6 @@ import murales from "@/assets/murales.jpg";
 import dancefloor from "@/assets/dancefloor.jpg";
 import djVinyl from "@/assets/dj-vinyl.jpg";
 import logoSticker from "@/assets/logo-sticker.png";
-import teamShop from "@/assets/team-shop.jpg";
-import teamDj from "@/assets/team-dj.jpg";
 import willoPhoto from "@/assets/team-willo.jpg";
 import matteoPhoto from "@/assets/team-matteo.jpg";
 import willoMatteoPhoto from "@/assets/team-willo-matteo.jpg";
