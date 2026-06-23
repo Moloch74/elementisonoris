@@ -92,6 +92,64 @@ const ChiSiamo = () => {
         </div>
       </section>
 
+      {/* Il Team — Willo & Matteo */}
+      <section className="py-24 border-t border-border">
+        <div className="container mx-auto px-4 md:px-8">
+          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">CREW</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">IL <span className="text-neon">TEAM</span></h2>
+            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">I RAGAZZI DEL NEGOZIO</p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-6">
+            {[
+              { name: "WILLO", img: willoAsset.url },
+              { name: "MATTEO", img: matteoAsset.url },
+            ].map((m, i) => (
+              <motion.div
+                key={m.name}
+                className="text-center"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}
+              >
+                <div className="overflow-hidden group bg-muted/20">
+                  <img
+                    src={m.img}
+                    alt={m.name}
+                    className="w-full aspect-[14/15] object-contain group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
+                <p className="font-display text-2xl md:text-3xl font-bold mt-4 tracking-[0.2em]">{m.name}</p>
+                <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mt-1">ELEMENTI SONORI</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            className="max-w-3xl mx-auto"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+          >
+            <div className="overflow-hidden group bg-muted/20">
+              <img
+                src={willoMatteoAsset.url}
+                alt="Willo e Matteo — Elementi Sonori"
+                className="w-full aspect-[5/7] object-contain group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+            <p className="text-center font-display text-xl md:text-2xl font-bold mt-4 tracking-[0.2em]">
+              WILLO <span className="text-neon">&</span> MATTEO
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Values */}
       <section className="py-24 border-t border-border">
         <div className="container mx-auto px-4 md:px-8">
@@ -154,65 +212,6 @@ const ChiSiamo = () => {
           </div>
         </div>
       </section>
-
-      {/* Il Team — Willo & Matteo */}
-      <section className="py-24 border-t border-border">
-        <div className="container mx-auto px-4 md:px-8">
-          <motion.div className="text-center mb-12" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <p className="text-primary text-xs tracking-[0.4em] font-mono mb-4">CREW</p>
-            <h2 className="font-display text-4xl md:text-6xl font-bold mb-2">IL <span className="text-neon">TEAM</span></h2>
-            <p className="text-muted-foreground text-xs tracking-[0.3em] font-mono">I RAGAZZI DEL NEGOZIO</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-6">
-            {[
-              { name: "WILLO", img: willoAsset.url },
-              { name: "MATTEO", img: matteoAsset.url },
-            ].map((m, i) => (
-              <motion.div
-                key={m.name}
-                className="text-center"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={{ ...fadeUp, visible: { ...fadeUp.visible, transition: { duration: 0.5, delay: i * 0.1 } } }}
-              >
-                <div className="overflow-hidden group">
-                  <img
-                    src={m.img}
-                    alt={m.name}
-                    className="w-full aspect-[4/5] object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
-                    loading="lazy"
-                  />
-                </div>
-                <p className="font-display text-2xl md:text-3xl font-bold mt-4 tracking-[0.2em]">{m.name}</p>
-                <p className="text-muted-foreground text-[10px] tracking-[0.3em] font-mono mt-1">ELEMENTI SONORI</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            className="max-w-4xl mx-auto"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeUp}
-          >
-            <div className="overflow-hidden group">
-              <img
-                src={willoMatteoAsset.url}
-                alt="Willo e Matteo — Elementi Sonori"
-                className="w-full aspect-[16/9] object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
-                loading="lazy"
-              />
-            </div>
-            <p className="text-center font-display text-xl md:text-2xl font-bold mt-4 tracking-[0.2em]">
-              WILLO <span className="text-neon">&</span> MATTEO
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
 
       {/* Timeline */}
       <section className="py-24 border-t border-border">
