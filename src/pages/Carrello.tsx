@@ -176,11 +176,14 @@ const Carrello = () => {
                 >
                   {/* Product info */}
                   <div className="flex items-center gap-4">
-                    <img
-                      src={getImage(item.product?.image_url ?? null)}
-                      alt={item.product?.name || ""}
-                      className="w-16 h-16 object-cover border border-border shrink-0"
-                    />
+                    <div className="w-16 h-16 border border-border shrink-0 overflow-hidden">
+                      <VinylCover
+                        src={item.product?.image_url ?? null}
+                        name={item.product?.name || ""}
+                        alt={item.product?.name || ""}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div className="min-w-0">
                       <p className="text-foreground text-sm font-display font-semibold truncate">{item.product?.name || "..."}</p>
                       <p className="text-muted-foreground text-[10px] tracking-[0.2em] font-mono mt-0.5">
