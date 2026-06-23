@@ -139,6 +139,12 @@ const translations: Record<string, Record<Lang, string>> = {
   "chiSiamo.vieniA": { it: "VIENI A", en: "COME" },
   "chiSiamo.trovarci": { it: "TROVARCI", en: "VISIT US" },
   "chiSiamo.ctaAddress": { it: "Via Alfonso Sozy Carafa 31B, 73100 Lecce. Mar–Sab 11:00–13:30 / 17:00–21:30.", en: "Via Alfonso Sozy Carafa 31B, 73100 Lecce. Tue–Sat 11:00–13:30 / 17:00–21:30." },
+  "chiSiamo.teamTitle": { it: "ELEMENTI SONORI", en: "ELEMENTI SONORI" },
+  "chiSiamo.teamHighlight": { it: "TEAM", en: "TEAM" },
+  "chiSiamo.teamSubtitle": { it: "LE FACCE DIETRO AL BANCONE E DIETRO LE CASSE", en: "THE FACES BEHIND THE COUNTER AND BEHIND THE DECKS" },
+  "chiSiamo.teamDesc": { it: "Selettori, collezionisti, organizzatori. Da oltre dieci anni portiamo avanti la ricerca del suono underground, dalla cassa del negozio ai sound system.", en: "Selectors, collectors, organisers. For more than ten years we've been chasing underground sound, from the shop counter to the sound systems." },
+  "chiSiamo.teamCaptionShop": { it: "IN NEGOZIO — TRA I VINILI", en: "IN THE SHOP — DIGGING THROUGH THE CRATES" },
+  "chiSiamo.teamCaptionDj": { it: "DIETRO LE CASSE — SET IN-STORE", en: "BEHIND THE DECKS — IN-STORE SET" },
 
   // Catalogo
   "catalogo.heroSubtitle": { it: "[437+ VINILI IN VENDITA SU DISCOGS — 5 STILI · 3 GENERI]", en: "[437+ VINYLS FOR SALE ON DISCOGS — 5 STYLES · 3 GENRES]" },
