@@ -90,7 +90,7 @@ const Eventi = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
               <motion.div className="lg:col-span-2 relative" initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-                <img src={dancefloor} alt="Evento" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1280} height={960} />
+                <img src={eventShopDj} alt="DJ set in-store" className="w-full aspect-[3/4] object-cover" loading="lazy" width={1024} height={1024} />
                 <img src={heroRave} alt="Rave" className="absolute -bottom-8 right-0 w-2/3 aspect-video object-cover border-4 border-background" loading="lazy" width={1920} height={1080} />
               </motion.div>
               <div className="lg:col-span-3">
